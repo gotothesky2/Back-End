@@ -1,0 +1,16 @@
+# default profile settings
+spring:
+  profiles:
+    active: local
+
+
+---
+# Swagger
+springdoc:
+  swagger-ui:
+    path: /swagger
+  cache:
+    disabled: true
+  use-fqn: true
+
+---
