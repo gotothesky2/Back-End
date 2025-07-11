@@ -3,7 +3,6 @@ spring:
   profiles:
     active: local
 
-
 ---
 # Swagger
 springdoc:
@@ -14,3 +13,16 @@ springdoc:
   use-fqn: true
 
 ---
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/canfly_db
+    username: canfly_user
+    password: canfly_pass
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create   # 첫 실행 시 테이블 자동 생성
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
