@@ -45,8 +45,12 @@ public class User extends BaseEntity {
     @Column(name = "highschool", length = 40)
     private String highschool;
 
+    @Column(name = "gradeNum")
+    private Byte gradeNum;
+
     @Column(nullable = false)
     private int token = 30;
+
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private OAuth auth;
