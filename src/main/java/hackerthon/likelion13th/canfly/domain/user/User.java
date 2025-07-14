@@ -1,8 +1,10 @@
 package hackerthon.likelion13th.canfly.domain.user;
 
+import hackerthon.likelion13th.canfly.domain.cst.Cst;
 import hackerthon.likelion13th.canfly.domain.entity.BaseEntity;
 import hackerthon.likelion13th.canfly.domain.entity.Sex;
 import hackerthon.likelion13th.canfly.domain.field.FieldBookmark;
+import hackerthon.likelion13th.canfly.domain.hmt.Hmt;
 import hackerthon.likelion13th.canfly.domain.major.MajorBookmark;
 import hackerthon.likelion13th.canfly.domain.mock.Mock;
 import hackerthon.likelion13th.canfly.domain.report.Report;
@@ -45,11 +47,23 @@ public class User extends BaseEntity {
     @Column(name = "highschool", length = 40)
     private String highschool;
 
+    @Column(name = "gradeNum")
+    private Byte gradeNum;
+
     @Column(nullable = false)
     private int token = 30;
 
+
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private OAuth auth;
+
+    @Builder.Default
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Hmt> hmtResult = new ArrayList<>();
+
+    @Builder.Default
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Cst> cstResult = new ArrayList<>();
 
     @Builder.Default
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
