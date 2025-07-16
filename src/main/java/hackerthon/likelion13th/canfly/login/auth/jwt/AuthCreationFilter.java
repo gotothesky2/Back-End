@@ -34,10 +34,6 @@ public class AuthCreationFilter extends OncePerRequestFilter {
             HttpServletResponse response,
             FilterChain filterChain
     ) throws ServletException, IOException {
-        if (request.getServletPath().startsWith("/ws-chat")) {
-            filterChain.doFilter(request, response);          // ← 그냥 패스
-            return;
-        }
         log.info("Request URL: {}", request.getServletPath());
 
         // 1. Authorization 헤더에서 JWT 추출

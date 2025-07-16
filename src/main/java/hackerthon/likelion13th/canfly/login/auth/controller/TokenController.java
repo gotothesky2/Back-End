@@ -10,7 +10,6 @@ import hackerthon.likelion13th.canfly.login.converter.UserConverter;
 import hackerthon.likelion13th.canfly.login.dto.UserRequestDto;
 import hackerthon.likelion13th.canfly.login.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;

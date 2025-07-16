@@ -33,7 +33,7 @@ public class SwaggerConfig {
 
         Server localServer = new Server()
                 .url("http://localhost:8080")
-                .description("Reborn HTTP Server");
+                .description("Canfly HTTP Server");
 
         return new OpenAPI()
                 .info(apiInfo)
