@@ -1,8 +1,32 @@
 # default profile settings
 spring:
+  config:
+    import: optional:file:.env[.properties]
   profiles:
     active: local
 
+  # OAuth2
+  security:
+    oauth2:
+      client:
+        registration: # 클라이언트 식별
+          # Kakao
+          kakao:
+            client-id: ${KAKAO_CLIENT_ID}
+            redirect-uri: http://localhost:8080/login/oauth2/code/kakao
+            #redirect-uri: http://api.x-reborn.com/login/oauth2/code/kakao
+            authorization-grant-type: authorization_code
+            client-authentication-method: client_secret_post
+            scope:
+              - profile_nickname
+              - account_email
+        provider:
+          # Kakao
+          kakao:
+            authorization-uri: https://kauth.kakao.com/oauth/authorize
+            token-uri: https://kauth.kakao.com/oauth/token
+            user-info-uri: https://kapi.kakao.com/v2/user/me
+            user-name-attribute: id
 ---
 # Swagger
 springdoc:
@@ -13,16 +37,31 @@ springdoc:
   use-fqn: true
 
 ---
+jwt:
+  secret: ${JWT_SECRET}
+  accessExpirationTime: ${JWT_EXPIRATION}
+  refreshExpirationTime: ${JWT_REFRESH_EXPIRATION}
+
+---
+
+# Local
 spring:
+  config:
+    activate:
+      on-profile: local
   datasource:
-    url: jdbc:mysql://localhost:3306/canfly_db
-    username: canfly_user
-    password: canfly_pass
-    driver-class-name: com.mysql.cj.jdbc.Driver
-  jpa:
-    hibernate:
-      ddl-auto: create   # 첫 실행 시 테이블 자동 생성
-    show-sql: true
-    properties:
-      hibernate:
-        format_sql: true
+    url: ${LOCAL_DB_URL}
+    username: ${LOCAL_DB_USERNAME}
+    password: ${LOCAL_DB_PASSWORD}
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+  oauth2:
+    redirect-url: ${LOGIN_LOCAL_REDIRECT_URI}
+  security:
+    oauth2:
+      client:
+        registration:
+          kakao:
+            #redirect-uri: http://localhost:8080/login/oauth2/code/kakao

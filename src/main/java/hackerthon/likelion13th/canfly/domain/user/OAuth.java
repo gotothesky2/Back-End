@@ -21,11 +21,17 @@ public class OAuth extends BaseEntity {
     @Column(name = "authId")
     private Long id;
 
+    @Column(nullable = false)
+    private String providerUserId;
+
+    @Column(name = "accessToken", length = 255)
+    private String accessToken;
+
     @Column(name = "provider", length = 20, nullable = false)
     private String provider;
 
-    @Column(name = "expireAt", nullable = false)
-    private LocalDateTime expireAt;
+    @Column(name = "expireDate")
+    private LocalDateTime expireDate;
 
     @Column(name = "refreshToken", length = 255, nullable = false)
     private String refreshToken;

@@ -53,7 +53,6 @@ public class User extends BaseEntity {
     @Column(nullable = false)
     private int token = 30;
 
-
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private OAuth auth;
 
