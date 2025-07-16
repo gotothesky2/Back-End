@@ -21,18 +21,21 @@ public class OAuth extends BaseEntity {
     @Column(name = "authId")
     private Long id;
 
-    @Column(name = "provider", length = 20, nullable = false)
+    @Column(nullable = false)
+    private String providerUserId;
+
+    @Column(name = "accessToken", length = 255)
+    private String accessToken;
+
+    @Column(name = "expireDate")
+    private LocalDateTime expireDate;
+
+    @Column(name = "provider", length = 20)
     private String provider;
-
-    @Column(name = "expireAt", nullable = false)
-    private LocalDateTime expireAt;
-
-    @Column(name = "refreshToken", length = 255, nullable = false)
-    private String refreshToken;
 
     // FK: uid → User(uid)
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "uid", nullable = false)
+    @JoinColumn(name = "id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private User user;
 }
