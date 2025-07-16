@@ -9,20 +9,24 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
+import java.util.List;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
 @RequiredArgsConstructor
 @Configuration
 public class SecurityConfig {
+
     private final AuthCreationFilter authCreationFilter;
     private final JwtValidationFilter jwtValidationFilter;
     private final OAuth2UserServiceImpl oAuth2UserService;
@@ -38,13 +42,13 @@ public class SecurityConfig {
                 // 🔹 인증 및 권한 설정
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/health", // health check
-                                "/swagger-ui/**",         // 🔑 Swagger
+                                "/health",
+                                "/swagger-ui/**",
                                 "/v3/api-docs/**",
                                 "/oauth2/authorization/kakao",
-                                "/login/oauth2/**",        // 🟡  OAuth 콜백
-                                "/token/**",              // 🔑 토큰 재발급 및 생성
-                                "/oauth2/**",             // 🟡 카카오 OAuth 리디렉션
+                                "/login/oauth2/code/**",
+                                "/token/**",
+                                "/oauth/**",
                                 "/token/return",
                                 "/index.html",
                                 "/users/me",
@@ -53,40 +57,31 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .anyRequest().authenticated()
                 )
-                // 🔹 세션 정책: STATELESS (JWT 기반)
-                .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-
-                // 🔹 OAuth2 로그인 설정 (UserService 연동)
-                .oauth2Login(oauth2 -> oauth2
-                        //.loginPage("/users/login")
-                        .successHandler(oAuth2SuccessHandler)
-                        .userInfoEndpoint(userInfo -> userInfo
-                                .userService(oAuth2UserService))
+                .headers(h -> h
+                        .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin)    // iframe.html 차단 해제
                 )
-
-                // 🔹 필터 체인 적용
-                .addFilterBefore(authCreationFilter, AnonymousAuthenticationFilter.class)
+                .oauth2Login(oauth2 -> oauth2
+                        .successHandler(oAuth2SuccessHandler)
+                        .userInfoEndpoint(userInfo -> userInfo.userService(oAuth2UserService))
+                )
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
+                .addFilterBefore(authCreationFilter, AuthorizationFilter.class)
                 .addFilterBefore(jwtValidationFilter, AuthCreationFilter.class);
 
 
         return http.build();
     }
 
-    // CORS 설정
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList(
-                "http://localhost:8080",
-                "http://sajang-dev.ap-northeast-2.elasticbeanstalk.com",
-                "https://likelionshop.netlify.app"
-        ));
+        configuration.setAllowedOriginPatterns(List.of("*"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
         configuration.setAllowCredentials(true);
         configuration.setMaxAge(3600L);
-
+        configuration.setAllowedHeaders(List.of("*"));
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;

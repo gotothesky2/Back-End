@@ -14,7 +14,7 @@ spring:
           kakao:
             client-id: ${KAKAO_CLIENT_ID}
             redirect-uri: http://localhost:8080/login/oauth2/code/kakao
-            #redirect-uri: http://api.x-reborn.com/login/oauth2/code/kakao
+            #redirect-uri:
             authorization-grant-type: authorization_code
             client-authentication-method: client_secret_post
             scope:
@@ -51,7 +51,7 @@ spring:
         dialect: org.hibernate.dialect.MySQLDialect
         use_sql_comments: true
         hbm2ddl:
-          auto: create
+          auto: update
         default_batch_fetch_size: 1000
 ---
 jwt:
