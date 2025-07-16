@@ -5,5 +5,5 @@ import hackerthon.likelion13th.canfly.domain.mock.MockScore;
 import java.util.Optional;
 
 public interface MockScoreRepository {
-    Optional<MockScore> findById(int id);
+    Optional<MockScore> findById(Long id);
 }
