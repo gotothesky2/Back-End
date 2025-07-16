@@ -46,6 +46,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
             String username = String.format("{%s}%s", provider, oAuth2User.getAttribute("name"));
             String providerAccessToken = oAuth2User.getAttribute("oauth2AccessToken");
             LocalDateTime providerExpiresAt = oAuth2User.getAttribute("oauth2ExpiresAt");
+
             log.info("🔍 사용자 정보 추출 완료: username={}, email={}, provider={}", username, email, provider);
             if (!userDetailsManager.userExists(username)) {
                 log.info("🆕 신규 사용자 등록 시작: {}", username);

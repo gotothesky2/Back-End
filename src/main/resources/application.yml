@@ -35,7 +35,24 @@ springdoc:
   cache:
     disabled: true
   use-fqn: true
-
+---
+# DB-JPA Global settig
+spring:
+  #MySQL
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  sql:
+    init:
+      mode: never
+  #JPA
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        use_sql_comments: true
+        hbm2ddl:
+          auto: create
+        default_batch_fetch_size: 1000
 ---
 jwt:
   secret: ${JWT_SECRET}
@@ -43,6 +60,7 @@ jwt:
   refreshExpirationTime: ${JWT_REFRESH_EXPIRATION}
 
 ---
+
 
 # Local
 spring:
