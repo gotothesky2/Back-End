@@ -13,7 +13,7 @@ spring:
           # Kakao
           kakao:
             client-id: ${KAKAO_CLIENT_ID}
-            redirect-uri: http://localhost:8080/login/oauth2/code/kakao
+            #redirect-uri: http://localhost:8080/login/oauth2/code/kakao
             #redirect-uri:
             authorization-grant-type: authorization_code
             client-authentication-method: client_secret_post
@@ -82,4 +82,27 @@ spring:
       client:
         registration:
           kakao:
-            #redirect-uri: http://localhost:8080/login/oauth2/code/kakao
+            redirect-uri: http://localhost:8080/login/oauth2/code/kakao
+
+---
+# Develop
+spring:
+  config:
+    activate:
+      on-profile: develop
+  datasource:
+    url: ${AWS_DB_URL}
+    username: ${AWS_DB_USERNAME}
+    password: ${AWS_DB_PASSWORD}
+  data:
+    redis:
+      host: ${VALKEY_HOST}
+      port: ${VALKEY_PORT}
+  oauth2:
+    redirect-url: ${LOGIN_DEVELOPE_REDIRECT_URI}
+  security:
+    oauth2:
+      client:
+        registration:
+          kakao:
+            redirect-uri: http://canfly.ap-northeast-2.elasticbeanstalk.com/login/oauth2/code/kakao
