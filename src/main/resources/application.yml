@@ -54,14 +54,27 @@ spring:
           auto: update
         default_batch_fetch_size: 1000
 ---
+# S3
+cloud:
+  aws:
+    s3:
+      bucket: ${AWS_S3_BUCKET_NAME}
+      path:
+        location: location
+    credentials:
+      accessKey: ${AWS_S3_ACCESS_KEY}
+      secretKey: ${AWS_S3_SECRET_KEY}
+    region:
+      static: ap-northeast-2
+    stack:
+      auto: false
+---
+# JWT
 jwt:
   secret: ${JWT_SECRET}
   accessExpirationTime: ${JWT_EXPIRATION}
   refreshExpirationTime: ${JWT_REFRESH_EXPIRATION}
-
 ---
-
-
 # Local
 spring:
   config:
