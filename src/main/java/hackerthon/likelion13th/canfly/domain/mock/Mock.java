@@ -34,7 +34,12 @@ public class Mock extends BaseEntity {
 
     /** 과목별 점수 리스트 */
     @OneToMany(mappedBy = "mock", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<MockScore> scoreList = new ArrayList<>();
+    @Builder.Default
+    private List<MockScore> scoreLists = new ArrayList<>();
+    public void addMockScore(MockScore mockScore) {
+        this.scoreLists.add(mockScore);
+        mockScore.setMock(this);
+    }
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "uid", nullable = false)
