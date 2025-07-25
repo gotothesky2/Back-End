@@ -33,13 +33,17 @@ public class SwaggerConfig {
 
         Server localServer = new Server()
                 .url("http://localhost:8080")
+                .description("Canfly Local Server");
+
+        Server httpServer = new Server()
+                .url("http://canfly.ap-northeast-2.elasticbeanstalk.com/")
                 .description("Canfly HTTP Server");
 
         return new OpenAPI()
                 .info(apiInfo)
                 .addSecurityItem(securityRequirement)
                 .components(components)
-                .servers(List.of(localServer));
+                .servers(List.of(localServer, httpServer));
     }
 
     @Bean
