@@ -33,7 +33,7 @@ public class MockScore extends BaseEntity {
 
     /** 등급 */
     @Column(name = "grade")
-    private Short grade;
+    private Byte grade;
 
     /** 누적 백분위(%) */
     @Column(name = "cumulative", precision = 5, scale = 2)

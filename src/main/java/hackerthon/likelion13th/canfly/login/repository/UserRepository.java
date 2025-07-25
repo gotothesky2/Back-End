@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Long> {
+public interface UserRepository extends JpaRepository<User, String> {
     // 1. 사용자 계정이름으로 사용자 정보를 회수하는 기능
     Optional<User> findByName(String username);
 

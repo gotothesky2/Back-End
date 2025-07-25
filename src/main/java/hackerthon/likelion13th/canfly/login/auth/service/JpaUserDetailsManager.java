@@ -70,6 +70,10 @@ public class JpaUserDetailsManager implements UserDetailsManager {
                 });
         OAuth oAuth = (OAuth) oAuthRepository.findByUser(user)
                 .orElseThrow(() -> new GeneralException(ErrorCode.USER_NOT_FOUND));
+
+        System.out.println("Loaded User UID: " + user.getUid()); // 디버깅용
+//        System.out.println("Loaded User Email: " + user.getEmail()); // 디버깅용
+
         return CustomUserDetails.fromEntity(user, oAuth);
     }
 

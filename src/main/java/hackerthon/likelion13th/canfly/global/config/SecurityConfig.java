@@ -52,7 +52,8 @@ public class SecurityConfig {
                                 "/token/return",
                                 "/index.html",
                                 "/users/me",
-                                "/users/logout"
+                                "/users/logout",
+                                "/users/grades/mock"
                         ).permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .anyRequest().authenticated()
