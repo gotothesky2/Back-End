@@ -122,6 +122,31 @@ public class MockService {
     }
 
     @Transactional
+    public MockResponseDto updateMock(Long mockId, MockRequestDto mockRequestDto) {
+        Mock existingMock = mockRepository.findById(mockId)
+                .orElseThrow(() -> new IllegalArgumentException("Mock not found with id: " + mockId));
+        existingMock.setExamYear(mockRequestDto.getExamYear());
+        existingMock.setExamMonth(mockRequestDto.getExamMonth());
+        existingMock.setExamGrade(mockRequestDto.getExamGrade());
+        Mock updatedMock = mockRepository.save(existingMock);
+        return convertToDto(updatedMock);
+    }
+
+    @Transactional
+    public MockResponseDto.MockScoreResponseDto updateMockScore(Long mockScoreId, MockRequestDto.MockScoreRequestDto scoreRequestDto) {
+        MockScore existingMockScore = mockScoreRepository.findById(mockScoreId)
+                .orElseThrow(() -> new IllegalArgumentException("MockScore not found with id: " + mockScoreId));
+        existingMockScore.setStandardScore(scoreRequestDto.getStandardScore());
+        existingMockScore.setPercentile(scoreRequestDto.getPercentile());
+        existingMockScore.setGrade(scoreRequestDto.getGrade());
+        existingMockScore.setCumulative(scoreRequestDto.getCumulative());
+        existingMockScore.setCategory(scoreRequestDto.getCategory());
+        existingMockScore.setName(scoreRequestDto.getName());
+        MockScore updatedMockScore = mockScoreRepository.save(existingMockScore);
+        return convertToDto(updatedMockScore);
+    }
+
+    @Transactional
     public void deleteMock(Long mockId) {
         mockRepository.deleteById(mockId);
     }
@@ -130,4 +155,8 @@ public class MockService {
         // MockResponseDto의 생성자를 호출하여 엔티티를 넘겨줍니다.
         return new MockResponseDto(mock);
         }
+    private MockResponseDto.MockScoreResponseDto convertToDto(MockScore mockScore) {
+        // MockResponseDto의 생성자를 호출하여 엔티티를 넘겨줍니다.
+        return new MockResponseDto.MockScoreResponseDto(mockScore);
+    }
 }
