@@ -24,27 +24,27 @@ public class MockScore extends BaseEntity {
     private Long id;
 
     /** 표준점수 */
-    @Column(name = "standardScore", nullable = false)
-    private Short standardScore;
+    @Column(name = "standardScore")
+    private Integer standardScore;
 
     /** 백분위 */
     @Column(name = "percentile")
-    private Short percentile;
+    private Integer percentile;
 
     /** 등급 */
-    @Column(name = "grade")
-    private Short grade;
+    @Column(name = "grade", nullable = false)
+    private Integer grade;
 
     /** 누적 백분위(%) */
     @Column(name = "cumulative", precision = 5, scale = 2)
     private BigDecimal cumulative;
 
-    /** 과목 카테고리 (예: 국어/수학) */
-    @Column(name = "category", length = 50)
-    private String category;
+    /** 과목 카테고리 (예: 국어/수학) -> 국어 1 , 수학 2, 영어 3, 한국사 4, 사회 5, 과학 6 */
+    @Column(name = "category", nullable = false)
+    private Integer category;
 
     /** 영역(세부 과목명) */
-    @Column(name = "name", length = 50)
+    @Column(name = "name")
     private String name;
 
     @ManyToOne(fetch = LAZY, optional = false)

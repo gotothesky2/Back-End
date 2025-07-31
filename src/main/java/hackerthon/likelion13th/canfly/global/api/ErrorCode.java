@@ -20,7 +20,10 @@ public enum ErrorCode implements BaseCode { // 실패
     IP_NOT_MATCHED(HttpStatus.FORBIDDEN, "JWT_4031", "refresh token의 IP주소가 일치하지 않습니다."),
     TOKEN_INVALID(HttpStatus.FORBIDDEN, "JWT_4032", "유효하지 않은 token입니다."),
     TOKEN_NO_AUTH(HttpStatus.FORBIDDEN, "JWT_4033", "권한 정보가 없는 token입니다."),
-    TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "JWT_4011", "token 유효기간이 만료되었습니다.");
+    TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "JWT_4011", "token 유효기간이 만료되었습니다."),
+
+    // Mock
+    MOCK_NOT_FOUND(HttpStatus.NOT_FOUND, "MOCK_4041", "찾으려는 모의고사가 존재하지 않습니다.");
 
     private final HttpStatus httpStatus;
     private final String code;

@@ -24,17 +24,23 @@ public class Mock extends BaseEntity {
     private Long id;
 
     @Column(name = "examYear", nullable = false)
-    private Short examYear;
+    private Integer examYear;
 
     @Column(name = "examMonth", nullable = false)
-    private Byte examMonth;
+    private Integer examMonth;
 
     @Column(name = "examGrade", nullable = false)
-    private Byte examGrade;
+    private Integer examGrade;
 
     /** 과목별 점수 리스트 */
     @OneToMany(mappedBy = "mock", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<MockScore> scoreList = new ArrayList<>();
+    @Column(name = "mock_score", nullable = true)
+    @Builder.Default
+    private List<MockScore> scoreLists = new ArrayList<>();
+    public void addMockScore(MockScore mockScore) {
+        this.scoreLists.add(mockScore);
+        mockScore.setMock(this);
+    }
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "uid", nullable = false)

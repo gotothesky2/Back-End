@@ -136,7 +136,6 @@ public class UserService {
 
         // 4. username으로 사용자 정보 로드
         UserDetails userDetails = manager.loadUserByUsername(username);
-
         // 5. 새로운 Access Token, Refresh Token 생성
         JwtDto jwt = jwtTokenUtils.generateToken(userDetails);
         log.info("reissue: refresh token 재발급 완료");
