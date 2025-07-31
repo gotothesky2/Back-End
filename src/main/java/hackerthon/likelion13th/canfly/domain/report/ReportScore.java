@@ -25,7 +25,7 @@ public class ReportScore extends BaseEntity {
     private String subject;          // 과목명
 
     @Column(name = "grade")
-    private Byte grade;           // 등급
+    private Integer grade;           // 등급
 
     @Column(name = "ranking")
     private Integer ranking;         // 석차
@@ -46,13 +46,13 @@ public class ReportScore extends BaseEntity {
     private Integer score;            // 원점수
 
     @Column(name = "term", nullable = false)
-    private Byte term;            // 학기 구분
+    private Integer term;            // 학기 구분
 
     @Column(name = "credit", nullable = false)
-    private Byte credit;          // 학점
+    private Integer credit;          // 학점
 
-    @Column(name = "choice", nullable = false)
-    private Byte choice;          // 선택구분(일선/진선)
+    @Column(name = "choice")
+    private Integer choice;          // 선택구분(일선/진선)
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "rId", nullable = false)
