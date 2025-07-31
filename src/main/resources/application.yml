@@ -76,6 +76,11 @@ jwt:
   accessExpirationTime: ${JWT_EXPIRATION}
   refreshExpirationTime: ${JWT_REFRESH_EXPIRATION}
 ---
+# CAREER
+career:
+  base-url: https://www.career.go.kr/cnet/openapi
+  api-key:  ${CAREER_API_KEY}
+---
 # Local
 spring:
   config:
