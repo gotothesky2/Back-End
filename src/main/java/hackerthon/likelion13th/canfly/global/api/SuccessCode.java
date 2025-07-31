@@ -14,7 +14,10 @@ public enum SuccessCode implements BaseCode { // 성공
     USER_LOGOUT_SUCCESS(HttpStatus.OK, "USER_2001", "로그아웃 되었습니다."),
     USER_REISSUE_SUCCESS(HttpStatus.OK, "USER_2002", "토큰 재발급이 완료되었습니다."),
     USER_DELETE_SUCCESS(HttpStatus.OK, "USER_2003", "회원탈퇴가 완료되었습니다."),
-    MOCK_CREATE_SUCCESS(HttpStatus.OK, "MOCK_2001", "모의고사 등록이 완료되었습니다.");
+
+    MOCK_CREATE_SUCCESS(HttpStatus.OK, "MOCK_2011", "모의고사 등록이 완료되었습니다."),
+    MOCKSCORE_CREATE_SUCCESS(HttpStatus.OK, "MOCKSCORE_2011", "모의고사 성적 등록이 완료되었습니다."),
+    MOCK_DELETE_SUCCESS(HttpStatus.OK, "MOCK_2002", "모의고사 삭제가 완료되었습니다.");
 
 
     private final HttpStatus httpStatus;

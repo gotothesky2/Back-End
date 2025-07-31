@@ -1,5 +1,6 @@
 package hackerthon.likelion13th.canfly.grades.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.math.BigDecimal;
 import java.util.List;
@@ -11,9 +12,9 @@ import java.util.List;
 @AllArgsConstructor
 public class MockRequestDto {
 
-    private Short examYear;
-    private Byte examMonth;
-    private Byte examGrade;
+    private Integer examYear;
+    private Integer examMonth;
+    private Integer examGrade;
     private List<MockScoreRequestDto> scoreLists;
 
     @Getter
@@ -21,11 +22,11 @@ public class MockRequestDto {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class MockScoreRequestDto {
-        private Short standardScore;
-        private Short percentile;
-        private Byte grade;
+        private Integer standardScore;
+        private Integer percentile;
+        private Integer grade;
         private BigDecimal cumulative;
-        private String category;
+        private Integer category;
         private String name;
     }
 }

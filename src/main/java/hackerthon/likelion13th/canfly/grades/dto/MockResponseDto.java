@@ -3,6 +3,7 @@ package hackerthon.likelion13th.canfly.grades.dto;
 import hackerthon.likelion13th.canfly.domain.mock.Mock;
 import hackerthon.likelion13th.canfly.domain.mock.MockScore;
 import hackerthon.likelion13th.canfly.domain.user.User;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -10,10 +11,12 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import org.springframework.data.relational.core.sql.In;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Getter
@@ -22,9 +25,9 @@ import java.util.List;
 @AllArgsConstructor
 public class MockResponseDto {
     private Long id;
-    private Short examYear;
-    private Byte examMonth;
-    private Byte examGrade;
+    private Integer examYear;
+    private Integer  examMonth;
+    private Integer examGrade;
     private List<MockScoreResponseDto> scoreList = new ArrayList<>();
 
     public MockResponseDto(Mock mock) {
@@ -32,15 +35,11 @@ public class MockResponseDto {
         this.examYear = mock.getExamYear();
         this.examMonth = mock.getExamMonth();
         this.examGrade = mock.getExamGrade();
-        if (mock.getScoreLists() != null) {
-            for (MockScore mockScore : mock.getScoreLists()) {
-                // 각 MockScore 엔티티를 MockScoreResponseDto로 변환하여 리스트에 추가
-                this.scoreList.add(new MockScoreResponseDto(mockScore));
-            }
-        }
-        else {
-            this.scoreList = new ArrayList<>();
-        }
+        this.scoreList = (mock.getScoreLists() != null) && (!mock.getScoreLists().isEmpty()) ?
+                mock.getScoreLists().stream()
+                        .map(MockScoreResponseDto::new) // MockScoreResponseDto의 생성자 호출
+                        .collect(Collectors.toList()) :
+                new ArrayList<>();
     }
 
     @Getter
@@ -49,11 +48,11 @@ public class MockResponseDto {
     @AllArgsConstructor
     public static class MockScoreResponseDto {
         private Long scoreId;
-        private Short standardScore;
-        private Short percentile;
-        private Byte grade;
+        private Integer standardScore;
+        private Integer percentile;
+        private Integer grade;
         private BigDecimal cumulative;
-        private String category;
+        private Integer category;
         private String name;
 
         public MockScoreResponseDto(MockScore mockScore) {

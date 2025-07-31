@@ -35,6 +35,7 @@ springdoc:
   cache:
     disabled: true
   use-fqn: true
+  packages-to-scan: hackerthon.likelion13th.canfly
 ---
 # DB-JPA Global settig
 spring:

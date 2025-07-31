@@ -26,7 +26,7 @@ public class Report extends BaseEntity {
 
     /** 과목 카테고리명 (국어/수학) */
     @Column(name = "category_name", length = 30, nullable = false)
-    private String categoryName;
+    private Byte categoryName;
 
     /** 카테고리 평균 성적(예: 3.75) */
     @Column(name = "category_grade", precision = 5, scale = 2)
