@@ -65,16 +65,6 @@ public class MockController {
         return hackerthon.likelion13th.canfly.global.api.ApiResponse.onSuccess(SuccessCode.MOCKSCORE_CREATE_SUCCESS, responseDto);
     }
 
-    @GetMapping("/{mockId}")
-    @Operation(summary = "특정 모의고사 조회", description = "하나의 모의고사를 조회하는 메서드입니다.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "Mock_2002", description = "모의고사 조회가 완료되었습니다."),
-    })
-    public ResponseEntity<MockResponseDto> getMockById(@PathVariable Long mockId) {
-        MockResponseDto responseDto = mockService.getMockById(mockId);
-        return ResponseEntity.ok(responseDto);
-    }
-
     @GetMapping
     @Operation(summary = "전체 모의고사 조회", description = "사용자가 진행했던 모든 모의고사를 조회하는 메서드입니다.")
     @ApiResponses({
@@ -86,22 +76,51 @@ public class MockController {
         return ResponseEntity.ok(allMocks);
     }
 
+    @GetMapping("/{mockId}")
+    @Operation(summary = "특정 모의고사 조회", description = "하나의 모의고사를 조회하는 메서드입니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "Mock_2002", description = "모의고사 조회가 완료되었습니다."),
+    })
+    public ResponseEntity<MockResponseDto> getMockById(@PathVariable Long mockId) {
+        MockResponseDto responseDto = mockService.getMockById(mockId);
+        return ResponseEntity.ok(responseDto);
+    }
+
     @GetMapping("/{mockId}/{mockScoreId}")
     @Operation(summary = "모의고사 내 특정 과목 성적 조회", description = "특정 과목의 성적을 조회하는 메서드입니다.")
     @ApiResponses({
-            @ApiResponse(responseCode = "Mock_2001", description = "전체 모의고사 조회가 완료되었습니다."),
+            @ApiResponse(responseCode = "Mock_2003", description = "과목 성적 조회가 완료되었습니다."),
     })
     public ResponseEntity<MockResponseDto.MockScoreResponseDto> getMockScore(@PathVariable Long mockId, @PathVariable Long mockScoreId) {
         MockResponseDto.MockScoreResponseDto mockScore = mockService.getMockScoreById(mockId, mockScoreId);
         return ResponseEntity.ok(mockScore);
     }
 
+    @PutMapping("/{mockId}")
+    @Operation(summary = "모의고사 정보 수정", description = "특정 모의고사의 정보를 수정하는 메서드입니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "Mock_2013", description = "특정 모의고사 정보 수정이 완료되었습니다."),
+    })
+    public ResponseEntity<MockResponseDto> updateMock(@PathVariable Long mockId, @RequestBody MockRequestDto mockRequestDto) {
+        MockResponseDto responseDto = mockService.updateMock(mockId, mockRequestDto);
+        return ResponseEntity.ok(responseDto);
+    }
+
+    @PutMapping("/{mockId}/{mockScoreId}")
+    @Operation(summary = "모의고사 성적 수정", description = "특정 모의고사의 성적을 수정하는 메서드입니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "Mock_2014", description = "모의고사 성적 수정이 완료되었습니다."),
+    })
+    public ResponseEntity<MockResponseDto.MockScoreResponseDto> updateMockScore(@PathVariable Long mockId, @PathVariable Long mockScoreId, @RequestBody MockRequestDto.MockScoreRequestDto mockScoreRequestDto) {
+        MockResponseDto.MockScoreResponseDto responseDto = mockService.updateMockScore(mockId, mockScoreRequestDto);
+        return ResponseEntity.ok(responseDto);
+    }
 
 
     @DeleteMapping("/{mockId}")
     @Operation(summary = "모의고사 삭제", description = "특정 모의고사를 삭제하는 메서드입니다.")
     @ApiResponses({
-            @ApiResponse(responseCode = "Mock_2003", description = "모의고사 삭제가 완료되었습니다."),
+            @ApiResponse(responseCode = "Mock_2004", description = "모의고사 삭제가 완료되었습니다."),
     })
     public hackerthon.likelion13th.canfly.global.api.ApiResponse<Boolean> deleteMock(@PathVariable Long mockId) {
         mockService.deleteMock(mockId);

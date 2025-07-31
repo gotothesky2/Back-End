@@ -40,6 +40,7 @@ public class ReportScore extends BaseEntity {
     private Integer subjectAverage;   // 평균
 
     @Column(name = "achievement", length = 50)
+    @Enumerated(EnumType.STRING)
     private Achievement achievement;      // 성취도(A,B,C)
 
     @Column(name = "score", length = 50)
