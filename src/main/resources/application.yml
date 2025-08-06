@@ -102,7 +102,9 @@ spring:
         registration:
           kakao:
             redirect-uri: http://localhost:8080/login/oauth2/code/kakao
-
+---
+frontend:
+  base-url: ${FRONTEND_BASE_URL}
 ---
 # Develop
 spring:

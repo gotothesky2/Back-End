@@ -1,8 +1,8 @@
 package hackerthon.likelion13th.canfly.login.auth.utils;
 
-import hackerthon.likelion13th.canfly.global.utils.Redis.RedisUtil;
+import hackerthon.likelion13th.canfly.login.auth.dto.JwtDto;
 import hackerthon.likelion13th.canfly.login.auth.mapper.CustomUserDetails;
-import jakarta.servlet.ServletException;
+import hackerthon.likelion13th.canfly.login.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -11,75 +11,82 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.provisioning.UserDetailsManager;
-import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
-import java.util.UUID;
+import java.util.List;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
+public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
-    private final RedisUtil redisUtil;
     private final UserDetailsManager userDetailsManager;
+    private final UserService userService;
 
-    @Value("${spring.oauth2.redirect-url}")
-    private String baseRedirectUrl;
+    @Value("${frontend.base-url}")
+    private String defaultRedirect;
+
+    /** 허용 URI 화이트리스트 */
+    private List<String> getAuthorizedUris() {
+        return List.of(
+                defaultRedirect,
+                "http://localhost:3000"
+        );
+    }
 
     @Override
     public void onAuthenticationSuccess(
             HttpServletRequest request,
             HttpServletResponse response,
             Authentication authentication
-    ) throws IOException, ServletException {
-        try {
-            log.info("✅ OAuth2 로그인 성공 - 사용자 인증 객체 수신");
+    ) throws IOException {
 
-            // 사용자 정보 추출
-            OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
-            String providerId = oAuth2User.getAttribute("id");
-            String email = oAuth2User.getAttribute("email");
-            String provider = oAuth2User.getAttribute("provider");
-            String username = String.format("{%s}%s", provider, oAuth2User.getAttribute("name"));
-            String providerAccessToken = oAuth2User.getAttribute("oauth2AccessToken");
-            LocalDateTime providerExpiresAt = oAuth2User.getAttribute("oauth2ExpiresAt");
+        /* 1. OAuth2User 추출 */
+        OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
+        String provider       = oAuth2User.getAttribute("provider"); // kakao
+        String providerId     = oAuth2User.getAttribute("id");       // 4351993247
+        String nickname       = oAuth2User.getAttribute("name");     // 강민준
+        String email          = oAuth2User.getAttribute("email");
 
-            log.info("🔍 사용자 정보 추출 완료: username={}, email={}, provider={}", username, email, provider);
-            if (!userDetailsManager.userExists(username)) {
-                log.info("🆕 신규 사용자 등록 시작: {}", username);
-                CustomUserDetails newUser = CustomUserDetails.builder()
-                        .providerId(providerId)
-                        .username(username)
-                        .email(email)
-                        .provider(provider)
-                        .accessToken(providerAccessToken)
-                        .expireDate(providerExpiresAt)
-                        .build();
-                userDetailsManager.createUser(newUser);
-                log.info("✅ 신규 사용자 등록 완료: {}", username);
-            } else {
-                log.info("👤 기존 사용자 로그인: {}", username);
-            }
+        /* 2. username 형식: {kakao}강민준 */
+        String username = String.format("{%s}%s", provider, nickname);
 
-            // Redis에 authCode 저장
-            String authCode = UUID.randomUUID().toString();
-            redisUtil.setDataExpire("randomCode" + authCode, username, 300);
-
-            log.info("🧠 Redis에 인증 코드 저장 완료: key=randomCode{}, value={}", authCode, username);
-
-            // 앱으로 리디렉트할 딥링크 구성
-            String redirectUrl = String.format("%s?code=%s", baseRedirectUrl, authCode);
-            log.info("🚀 앱으로 리디렉트 시작 → {}", redirectUrl);
-
-            // 실제 리디렉트
-            getRedirectStrategy().sendRedirect(request, response, redirectUrl);
-
-        } catch (Exception e) {
-            log.error("❌ OAuth2 인증 성공 후 처리 중 예외 발생", e);
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "OAuth2 인증 실패");
+        /* 3. 신규 사용자 저장 (+ OAuth 정보) */
+        if (!userDetailsManager.userExists(username)) {
+            CustomUserDetails details = CustomUserDetails.builder()
+                    .providerId(providerId)
+                    .username(username)          // DB User.name ← 이 값
+                    .email(email)
+                    .provider(provider)
+                    .accessToken(oAuth2User.getAttribute("oauth2AccessToken"))
+                    .expireDate(oAuth2User.getAttribute("oauth2ExpiresAt"))
+                    .build();
+            userDetailsManager.createUser(details);
+            log.info("🆕 신규 사용자 등록: {}", username);
+        } else {
+            log.info("👤 기존 사용자 로그인: {}", username);
         }
+
+        /* 4. JWT 즉시 발급 (providerId 기준) */
+        JwtDto jwt = userService.jwtMakeSave(providerId);
+        log.info("🔑 JWT 발급 완료 | providerId={}", providerId);
+
+        /* 5. redirect_uri 검증 */
+        String frontRedirect = request.getParameter("redirect_uri");
+        if (frontRedirect == null || !getAuthorizedUris().contains(frontRedirect)) {
+            frontRedirect = defaultRedirect;
+        }
+
+        /* 6. accessToken 쿼리 파라미터로 리다이렉트 */
+        String redirectUrl = UriComponentsBuilder.fromUriString(frontRedirect)
+                .queryParam("accessToken", jwt.getAccessToken())
+                .build()
+                .toUriString();
+
+        log.info("🔄 Redirect → {}", redirectUrl);
+        response.sendRedirect(redirectUrl);
     }
 }
