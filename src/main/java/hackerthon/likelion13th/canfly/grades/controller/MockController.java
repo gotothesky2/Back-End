@@ -1,9 +1,7 @@
 package hackerthon.likelion13th.canfly.grades.controller;
 
 import hackerthon.likelion13th.canfly.domain.user.User;
-import hackerthon.likelion13th.canfly.global.api.ErrorCode;
 import hackerthon.likelion13th.canfly.global.api.SuccessCode;
-import hackerthon.likelion13th.canfly.global.exception.GeneralException;
 import hackerthon.likelion13th.canfly.grades.dto.MockRequestDto;
 import hackerthon.likelion13th.canfly.grades.dto.MockResponseDto;
 import hackerthon.likelion13th.canfly.grades.service.MockService;
@@ -13,14 +11,12 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 @Tag(name="모의고사", description = "모의고사 성적 입력 컨트롤러입니다.")
@@ -43,12 +39,10 @@ public class MockController {
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @RequestBody MockRequestDto mockRequestDto) {
 
+        User user = userService.findUserByProviderId(customUserDetails.getUsername());
+        MockResponseDto dto = mockService.createMock(user.getUid(), mockRequestDto);
 
-        User user = userService.findUserByUserName(customUserDetails.getUsername());
-        String userId = user.getUid();
-
-        MockResponseDto responseDto = mockService.createMock(userId, mockRequestDto);
-        return hackerthon.likelion13th.canfly.global.api.ApiResponse.onSuccess(SuccessCode.MOCK_CREATE_SUCCESS, responseDto);
+        return hackerthon.likelion13th.canfly.global.api.ApiResponse.onSuccess(SuccessCode.MOCK_CREATE_SUCCESS, dto);
     }
 
     @PostMapping("/{mockId}")
@@ -71,8 +65,10 @@ public class MockController {
             @ApiResponse(responseCode = "Mock_2001", description = "전체 모의고사 조회가 완료되었습니다."),
     })
     public ResponseEntity<List<MockResponseDto>> getAllMocksOfUser(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
-        User user = userService.findUserByUserName(customUserDetails.getUsername());
+        /* providerId 기반으로 User 찾기 */
+        User user = userService.findUserByProviderId(customUserDetails.getUsername());
         List<MockResponseDto> allMocks = mockService.getAllMocksByUserId(user.getUid());
+
         return ResponseEntity.ok(allMocks);
     }
 
