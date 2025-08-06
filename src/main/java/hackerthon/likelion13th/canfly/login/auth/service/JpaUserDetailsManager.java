@@ -41,7 +41,7 @@ public class JpaUserDetailsManager implements UserDetailsManager {
             CustomUserDetails details = (CustomUserDetails) user;
             OAuth newSocialAccount = new OAuth();
             newSocialAccount.setProvider(details.getProvider());
-            newSocialAccount.setProviderUserId(details.getProviderId());
+            newSocialAccount.setProviderUserId(details.getUsername());
             newSocialAccount.setUser(newUser);
             newSocialAccount.setAccessToken(details.getAccessToken());
             newSocialAccount.setExpireDate(details.getExpireDate());

@@ -57,8 +57,8 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         /* 3. 신규 사용자 저장 (+ OAuth 정보) */
         if (!userDetailsManager.userExists(username)) {
             CustomUserDetails details = CustomUserDetails.builder()
-                    .providerId(providerId)
-                    .username(username)          // DB User.name ← 이 값
+                    .username(providerId)
+                    .nickname(username)
                     .email(email)
                     .provider(provider)
                     .accessToken(oAuth2User.getAttribute("oauth2AccessToken"))

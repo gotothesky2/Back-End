@@ -24,21 +24,22 @@ public class CustomUserDetails implements UserDetails {
     private String id;
     private String providerId;
     private String username;
+    private String nickname;
     private String email;
     private String provider;
     private String accessToken;
     private LocalDateTime expireDate;
 
 
-    public static CustomUserDetails fromEntity(User entity, OAuth oauth) {
+    public static CustomUserDetails fromEntity(User u, OAuth o) {
         return CustomUserDetails.builder()
-                .id(entity.getUid())
-                .providerId(oauth.getProviderUserId())
-                .username(entity.getName())
-                .email(entity.getEmail())
-                .provider(oauth.getProvider())
-                .accessToken(oauth.getAccessToken())
-                .expireDate(oauth.getExpireDate())
+                .username(o.getProviderUserId())
+                .nickname(u.getName())
+                .id(u.getUid())
+                .email(u.getEmail())
+                .provider(o.getProvider())
+                .accessToken(o.getAccessToken())
+                .expireDate(o.getExpireDate())
                 .build();
     }
 
@@ -82,7 +83,7 @@ public class CustomUserDetails implements UserDetails {
 
     public User toEntity() {
         return User.builder()
-                .name(this.username)
+                .name(this.nickname)
                 .email(this.email)
                 .build();
     }
@@ -91,9 +92,8 @@ public class CustomUserDetails implements UserDetails {
     @Override
     public String toString() {
         return "CustomUserDetails{" +
-                "id=" + id +
-                ", username='" + username + '\'' +
-                ", password='[PROTECTED]'" +
+                "providerId=" + username +
+                ", nickname='" + nickname + '\'' +
                 ", email='" + email + '\'' +
                 '}';
     }
