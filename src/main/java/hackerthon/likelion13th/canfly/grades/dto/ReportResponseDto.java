@@ -58,6 +58,7 @@ public class ReportResponseDto {
             this.studentNum = reportScore.getStudentNum();
             this.standardDeviation = reportScore.getStandardDeviation();
             this.subjectAverage = reportScore.getSubjectAverage();
+            this.achievement = reportScore.getAchievement();
             this.score = reportScore.getScore();
             this.credit = reportScore.getCredit();
         }

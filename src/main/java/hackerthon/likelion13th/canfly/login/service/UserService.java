@@ -32,8 +32,6 @@ public class UserService {
     // private final AmazonS3Manager amazonS3Manager;
 
     // 로그인
-
-    // username으로 User찾기
     public User findUserByProviderId(String providerId) {
         return oAuthRepository.findByProviderUserId(providerId)   // ★ 새 메서드
                 .orElseThrow(() -> new GeneralException(ErrorCode.USER_NOT_FOUND))
@@ -138,5 +136,34 @@ public class UserService {
     public User findUserByUserName(String nickName) {
         return userRepository.findByName(nickName)
                 .orElseThrow(() -> new GeneralException(ErrorCode.USER_NOT_FOUND_BY_USERNAME));
+    }
+
+    @Transactional
+    public User processCoins(String userId, int amount) {
+        User user = userRepository.findByUid(userId)
+                .orElseThrow(() -> new GeneralException(ErrorCode.USER_NOT_FOUND));
+        if (amount < 0) {
+            throw new IllegalArgumentException("amount는 0 이상이어야 합니다.");
+        }
+
+        if (amount == 0) {
+            // amount가 0이면 토큰 1개 사용
+            return useCoin(user);
+        } else {
+            // amount가 0보다 크면 토큰 충전
+            return chargeCoin(user, amount);
+        }
+    }
+    public User useCoin(User user) {
+        if (user.getToken() <= 0) {
+            throw new IllegalStateException("코인이 부족하여 사용할 수 없습니다.");
+        }
+        user.setToken(user.getToken() - 1);
+        return user;
+    }
+
+    public User chargeCoin(User user, int amount) {
+        user.setToken(user.getToken() + amount);
+        return user;
     }
 }

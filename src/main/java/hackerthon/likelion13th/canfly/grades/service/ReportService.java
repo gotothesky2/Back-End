@@ -4,8 +4,6 @@ package hackerthon.likelion13th.canfly.grades.service;
 import hackerthon.likelion13th.canfly.domain.report.Report;
 import hackerthon.likelion13th.canfly.domain.report.ReportScore;
 import hackerthon.likelion13th.canfly.domain.user.User;
-import hackerthon.likelion13th.canfly.global.api.ErrorCode;
-import hackerthon.likelion13th.canfly.global.exception.GeneralException;
 import hackerthon.likelion13th.canfly.grades.dto.ReportRequestDto;
 import hackerthon.likelion13th.canfly.grades.dto.ReportResponseDto;
 import hackerthon.likelion13th.canfly.grades.repository.ReportRepository;
@@ -20,7 +18,6 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.List;
-import java.util.OptionalDouble;
 import java.util.stream.Collectors;
 
 
@@ -33,9 +30,9 @@ public class ReportService {
     private final UserRepository userRepository;
 
     @Transactional
-    public ReportResponseDto createReport(String userId, ReportRequestDto reportRequestDto) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
+    public ReportResponseDto createReport(String userName, ReportRequestDto reportRequestDto) {
+        User user = userRepository.findByName(userName)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with name: " + userName));
 
         Report newReport = Report.builder()
                 .categoryName(reportRequestDto.getCategoryName())
@@ -62,6 +59,8 @@ public class ReportService {
                 newReport.addReportScore(reportScore);
             }
         }
+        newReport.setCategoryGrade(calculateAverageFromList(newReport.getScoreLists()));
+
         user.addReport(newReport);
         reportRepository.save(newReport);
         return new ReportResponseDto(newReport);
@@ -83,9 +82,9 @@ public class ReportService {
                 .subjectAverage(scoreRequestDto.getSubjectAverage())
                 .score(scoreRequestDto.getScore())
                 .credit(scoreRequestDto.getCredit())
-                .build();
-        report.setCategoryGrade(getAverageReportScore(report.getId()));
+                .build();;
         report.addReportScore(newReportScore); // Report 엔티티에 ReportScore 추가 (양방향 관계 설정)
+        report.setCategoryGrade(calculateAverageFromList(report.getScoreLists()));
         reportScoreRepository.save(newReportScore);
         return new ReportResponseDto(report);
     }
@@ -98,12 +97,12 @@ public class ReportService {
     }
 
     @Transactional
-    public List<ReportResponseDto> getAllReportsByUserId(String userId) {
-        if (!userRepository.existsById(userId)) {
-            throw new IllegalArgumentException("User not found with id: " + userId);
+    public List<ReportResponseDto> getAllReportsByUserName(String userName) {
+        if (!userRepository.existsByName(userName)) {
+            throw new IllegalArgumentException("User not found with name: " + userName);
         }
 
-        List<Report> reports = reportRepository.findByUser(userRepository.findByUid(userId));
+        List<Report> reports = reportRepository.findByUser(userRepository.findByName(userName).orElseThrow(() -> new IllegalArgumentException("User not found with name: " + userName)));
 
         return reports.stream()
                 .map(this::convertToDto)
@@ -123,25 +122,24 @@ public class ReportService {
         return new ReportResponseDto.ReportScoreResponseDto(reportScore);
     }
 
-    @Transactional
-    public BigDecimal getAverageReportScore(Long reportId) {
-        // 리포트 존재 여부 확인 로직
-        // ...
-
-        List<ReportScore> scores = reportScoreRepository.findByReportId(reportId);
-
-        if (scores.isEmpty()) {
+    private BigDecimal calculateAverageFromList(List<ReportScore> scores) {
+        if (scores == null || scores.isEmpty()) {
             return BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
         }
 
         BigDecimal sum = scores.stream()
-                .map(ReportScore::getScore)         // Stream<Integer>
-                .map(BigDecimal::valueOf)           // 이 단계에서 Integer를 BigDecimal로 변환합니다.
+                .map(ReportScore::getGrade)
+                .map(BigDecimal::valueOf)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
-        BigDecimal count = BigDecimal.valueOf(scores.size());
-        BigDecimal average = sum.divide(count, MathContext.DECIMAL64);
 
-        // 3. 계산된 평균값의 소수점 자릿수를 2자리로 설정하고 반올림합니다.
+        BigDecimal count = BigDecimal.valueOf(scores.size());
+
+        // 0으로 나누는 경우 방지
+        if (count.compareTo(BigDecimal.ZERO) == 0) {
+            return BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
+        }
+
+        BigDecimal average = sum.divide(count, MathContext.DECIMAL64);
         return average.setScale(2, RoundingMode.HALF_UP);
     }
 
@@ -151,7 +149,6 @@ public class ReportService {
         Report existingReport = reportRepository.findById(reportId)
                 .orElseThrow(() -> new IllegalArgumentException("Report not found with id: " + reportId));
         existingReport.setCategoryName(reportRequestDto.getCategoryName());
-        existingReport.setCategoryGrade(getAverageReportScore(reportId));
         existingReport.setTerm(reportRequestDto.getTerm());
         existingReport.setUserGrade(reportRequestDto.getUserGrade());
         Report updatedReport = reportRepository.save(existingReport);
@@ -171,6 +168,10 @@ public class ReportService {
         existingReportScore.setSubjectAverage(scoreRequestDto.getSubjectAverage());
         existingReportScore.setScore(scoreRequestDto.getScore());
         existingReportScore.setCredit(scoreRequestDto.getCredit());
+        Report parentReport = existingReportScore.getReport(); // ReportScore가 Report 참조를 가지고 있어야 함
+        if (parentReport != null) {
+            parentReport.setCategoryGrade(calculateAverageFromList(parentReport.getScoreLists()));
+        }
         ReportScore updatedReportScore = reportScoreRepository.save(existingReportScore);
         return convertToDto(updatedReportScore);
     }

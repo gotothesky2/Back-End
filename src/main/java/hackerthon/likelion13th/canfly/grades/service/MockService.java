@@ -28,16 +28,11 @@ public class MockService {
     private final MockScoreRepository mockScoreRepository;
     private final UserRepository userRepository;
 
-    @Transactional
-    public Mock findById(Long mockId) {
-        return mockRepository.findById(mockId)
-                .orElseThrow(() -> GeneralException.of(ErrorCode.MOCK_NOT_FOUND));
-    }
 
     @Transactional
-    public MockResponseDto createMock(String userId, MockRequestDto mockRequestDto) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
+    public MockResponseDto createMock(String userName, MockRequestDto mockRequestDto) {
+        User user = userRepository.findByName(userName)
+                .orElseThrow(() -> GeneralException.of(ErrorCode.USER_NOT_FOUND));
 
         Mock newMock = Mock.builder()
                 .examYear(mockRequestDto.getExamYear())
@@ -98,7 +93,7 @@ public class MockService {
             throw new IllegalArgumentException("User not found with id: " + userId);
         }
 
-        List<Mock> mocks = mockRepository.findByUser(userRepository.findByUid(userId));
+        List<Mock> mocks = mockRepository.findByUser(userRepository.findByUid(userId).orElseThrow(() -> new IllegalArgumentException("User not found with id: " + userId)));
 
         return mocks.stream()
                 .map(this::convertToDto)

@@ -59,22 +59,6 @@ public class User extends BaseEntity {
 
     @Builder.Default
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Hmt> hmtResult = new ArrayList<>();
-    public void addHmt(Hmt hmt) {
-        this.hmtResult.add(hmt);
-        hmt.setUser(this);
-    }
-
-    @Builder.Default
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Cst> cstResult = new ArrayList<>();
-    public void addCst(Cst cst) {
-        this.cstResult.add(cst);
-        cst.setUser(this);
-    }
-
-    @Builder.Default
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<FieldBookmark> fieldBookmarkList = new ArrayList<>();
 
     @Builder.Default
