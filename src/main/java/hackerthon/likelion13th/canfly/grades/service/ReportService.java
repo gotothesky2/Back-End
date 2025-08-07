@@ -63,6 +63,7 @@ public class ReportService {
             }
         }
         user.addReport(newReport);
+        reportRepository.save(newReport);
         return new ReportResponseDto(newReport);
     }
 
@@ -85,6 +86,7 @@ public class ReportService {
                 .build();
         report.setCategoryGrade(getAverageReportScore(report.getId()));
         report.addReportScore(newReportScore); // Report 엔티티에 ReportScore 추가 (양방향 관계 설정)
+        reportScoreRepository.save(newReportScore);
         return new ReportResponseDto(report);
     }
 

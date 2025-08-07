@@ -81,6 +81,7 @@ public class MockService {
                 .name(scoreRequestDto.getName())
                 .build();
         mock.addMockScore(newMockScore); // Mock 엔티티에 MockScore 추가 (양방향 관계 설정)
+        mockScoreRepository.save(newMockScore);
         return new MockResponseDto(mock);
     }
 
