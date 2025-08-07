@@ -16,12 +16,14 @@ public enum SuccessCode implements BaseCode { // 성공
     USER_DELETE_SUCCESS(HttpStatus.OK, "USER_2003", "회원탈퇴가 완료되었습니다."),
 
     MOCK_CREATE_SUCCESS(HttpStatus.OK, "MOCK_2011", "모의고사 등록이 완료되었습니다."),
-    MOCKSCORE_CREATE_SUCCESS(HttpStatus.OK, "MOCKSCORE_2012", "모의고사 성적 등록이 완료되었습니다."),
-    MOCK_DELETE_SUCCESS(HttpStatus.OK, "MOCK_2004", "모의고사 삭제가 완료되었습니다."),
+    MOCKSCORE_CREATE_SUCCESS(HttpStatus.OK, "MOCKSCORE_2011", "모의고사 성적 등록이 완료되었습니다."),
+    MOCK_DELETE_SUCCESS(HttpStatus.OK, "MOCK_2002", "모의고사 삭제가 완료되었습니다."),
 
     REPORT_CREATE_SUCCESS(HttpStatus.OK, "REPORT_2011", "내신 등록이 완료되었습니다."),
     REPORTSCORE_CREATE_SUCCESS(HttpStatus.OK, "REPORTSCORE_2012", "내신 성적 등록이 완료되었습니다"),
-    REPORT_DELETE_SUCCESS(HttpStatus.OK, "REPORT_2004", "내신 삭제가 완료되었습니다..");
+    REPORT_DELETE_SUCCESS(HttpStatus.OK, "REPORT_2004", "내신 삭제가 완료되었습니다.."),
+
+    MAJORSYNC_BULK_SUCCESS(HttpStatus.OK, "Sync_2012", "DB 동기화가 완료되었습니다.");
 
 
     private final HttpStatus httpStatus;

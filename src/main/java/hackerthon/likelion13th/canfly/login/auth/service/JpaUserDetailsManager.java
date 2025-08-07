@@ -14,6 +14,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Slf4j
 @Service
 public class JpaUserDetailsManager implements UserDetailsManager {
@@ -39,7 +41,7 @@ public class JpaUserDetailsManager implements UserDetailsManager {
             CustomUserDetails details = (CustomUserDetails) user;
             OAuth newSocialAccount = new OAuth();
             newSocialAccount.setProvider(details.getProvider());
-            newSocialAccount.setProviderUserId(details.getProviderId());
+            newSocialAccount.setProviderUserId(details.getUsername());
             newSocialAccount.setUser(newUser);
             newSocialAccount.setAccessToken(details.getAccessToken());
             newSocialAccount.setExpireDate(details.getExpireDate());
@@ -61,20 +63,22 @@ public class JpaUserDetailsManager implements UserDetailsManager {
     // 실제로 Spring Security 내부에서 사용하는 반드시 구현해야 정상동작을 기대할 수 있는 메소드
     // 사용자 이름으로 사용자 정보를 로드
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        log.info("유저 이름 로드 중: {}", username);
-        User user = userRepository.findByName(username)
-                .orElseThrow(() -> {
-                    log.warn("유저 정보 없음: {}", username);
-                    return new GeneralException(ErrorCode.USER_NOT_FOUND);
-                });
-        OAuth oAuth = (OAuth) oAuthRepository.findByUser(user)
+    public UserDetails loadUserByUsername(String key) throws UsernameNotFoundException {
+        log.info("유저 정보 로드 시도 | key={}", key);
+
+        /* ── 1) User.name(닉네임) 으로 먼저 조회 ── */
+        Optional<User> byName = userRepository.findByName(key);
+        if (byName.isPresent()) {
+            OAuth oauth = oAuthRepository.findByUser(byName.get())
+                    .orElseThrow(() -> new GeneralException(ErrorCode.USER_NOT_FOUND));
+            return CustomUserDetails.fromEntity(byName.get(), oauth);
+        }
+
+        /* ── 2) 실패 시 providerId 로 OAuth 조회 ── */
+        OAuth oauth = oAuthRepository.findByProviderUserId(key)
                 .orElseThrow(() -> new GeneralException(ErrorCode.USER_NOT_FOUND));
 
-        System.out.println("Loaded User UID: " + user.getUid()); // 디버깅용
-//        System.out.println("Loaded User Email: " + user.getEmail()); // 디버깅용
-
-        return CustomUserDetails.fromEntity(user, oAuth);
+        return CustomUserDetails.fromEntity(oauth.getUser(), oauth);
     }
 
     // 사용자 정보 업데이트
