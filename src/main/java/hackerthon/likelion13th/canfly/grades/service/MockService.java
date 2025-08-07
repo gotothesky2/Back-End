@@ -10,17 +10,13 @@ import hackerthon.likelion13th.canfly.grades.dto.MockRequestDto;
 import hackerthon.likelion13th.canfly.grades.dto.MockResponseDto;
 import hackerthon.likelion13th.canfly.grades.repository.MockRepository;
 import hackerthon.likelion13th.canfly.grades.repository.MockScoreRepository;
-import hackerthon.likelion13th.canfly.login.auth.mapper.CustomUserDetails;
 import hackerthon.likelion13th.canfly.login.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 

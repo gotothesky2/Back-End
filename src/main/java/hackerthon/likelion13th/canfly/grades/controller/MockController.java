@@ -1,9 +1,7 @@
 package hackerthon.likelion13th.canfly.grades.controller;
 
 import hackerthon.likelion13th.canfly.domain.user.User;
-import hackerthon.likelion13th.canfly.global.api.ErrorCode;
 import hackerthon.likelion13th.canfly.global.api.SuccessCode;
-import hackerthon.likelion13th.canfly.global.exception.GeneralException;
 import hackerthon.likelion13th.canfly.grades.dto.MockRequestDto;
 import hackerthon.likelion13th.canfly.grades.dto.MockResponseDto;
 import hackerthon.likelion13th.canfly.grades.service.MockService;
@@ -13,13 +11,10 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
@@ -54,7 +49,7 @@ public class MockController {
     @PostMapping("/{mockId}")
     @Operation(summary = "모의고사 점수 등록", description = "어떤 모의고사의 특정 과목 성적을 입력하는 메서드입니다..")
     @ApiResponses({
-            @ApiResponse(responseCode = "Mock_2012", description = "모의고사 성적 등록이 완료되었습니다."),
+            @ApiResponse(responseCode = "Mockscore_2012", description = "모의고사 성적 등록이 완료되었습니다."),
     })
     public hackerthon.likelion13th.canfly.global.api.ApiResponse<MockResponseDto> createMockScoreLists(
             @PathVariable Long mockId,
@@ -89,7 +84,7 @@ public class MockController {
     @GetMapping("/{mockId}/{mockScoreId}")
     @Operation(summary = "모의고사 내 특정 과목 성적 조회", description = "특정 과목의 성적을 조회하는 메서드입니다.")
     @ApiResponses({
-            @ApiResponse(responseCode = "Mock_2003", description = "과목 성적 조회가 완료되었습니다."),
+            @ApiResponse(responseCode = "Mockscore_2003", description = "과목 성적 조회가 완료되었습니다."),
     })
     public ResponseEntity<MockResponseDto.MockScoreResponseDto> getMockScore(@PathVariable Long mockId, @PathVariable Long mockScoreId) {
         MockResponseDto.MockScoreResponseDto mockScore = mockService.getMockScoreById(mockId, mockScoreId);
@@ -109,7 +104,7 @@ public class MockController {
     @PutMapping("/{mockId}/{mockScoreId}")
     @Operation(summary = "모의고사 성적 수정", description = "특정 모의고사의 성적을 수정하는 메서드입니다.")
     @ApiResponses({
-            @ApiResponse(responseCode = "Mock_2014", description = "모의고사 성적 수정이 완료되었습니다."),
+            @ApiResponse(responseCode = "Mockscore_2014", description = "모의고사 성적 수정이 완료되었습니다."),
     })
     public ResponseEntity<MockResponseDto.MockScoreResponseDto> updateMockScore(@PathVariable Long mockId, @PathVariable Long mockScoreId, @RequestBody MockRequestDto.MockScoreRequestDto mockScoreRequestDto) {
         MockResponseDto.MockScoreResponseDto responseDto = mockService.updateMockScore(mockId, mockScoreRequestDto);

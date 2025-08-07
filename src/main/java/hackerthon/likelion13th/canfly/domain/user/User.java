@@ -51,6 +51,7 @@ public class User extends BaseEntity {
     private Byte gradeNum;
 
     @Column(nullable = false)
+    @Builder.Default
     private int token = 30;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
