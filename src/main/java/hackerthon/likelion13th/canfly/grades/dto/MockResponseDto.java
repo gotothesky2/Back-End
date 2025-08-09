@@ -2,16 +2,10 @@ package hackerthon.likelion13th.canfly.grades.dto;
 
 import hackerthon.likelion13th.canfly.domain.mock.Mock;
 import hackerthon.likelion13th.canfly.domain.mock.MockScore;
-import hackerthon.likelion13th.canfly.domain.user.User;
-import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
-import org.springframework.data.relational.core.sql.In;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;

@@ -5,6 +5,7 @@ import hackerthon.likelion13th.canfly.domain.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface MockRepository extends JpaRepository<Mock, Long> {
 

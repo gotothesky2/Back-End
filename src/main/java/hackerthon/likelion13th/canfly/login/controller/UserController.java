@@ -5,6 +5,8 @@ import hackerthon.likelion13th.canfly.global.api.ApiResponse;
 import hackerthon.likelion13th.canfly.global.api.SuccessCode;
 import hackerthon.likelion13th.canfly.login.auth.dto.JwtDto;
 import hackerthon.likelion13th.canfly.login.auth.mapper.CustomUserDetails;
+import hackerthon.likelion13th.canfly.login.dto.CoinRequestDto;
+import hackerthon.likelion13th.canfly.login.dto.CoinResponseDto;
 import hackerthon.likelion13th.canfly.login.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -15,7 +17,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
+import java.util.Map;
 
 @Tag(name = "회원", description = "회원 관련 api 입니다.")
 @RestController
@@ -58,6 +60,19 @@ public class UserController {
         return ApiResponse.onSuccess(SuccessCode.USER_DELETE_SUCCESS, 1);
     }
 
+    @Operation(summary = "토큰 사용 및 충전", description = "amount가 0이면 토큰 1개 사용, 0보다 크면 해당 양만큼 충전합니다.")
+    @PatchMapping("/token")
+    public ApiResponse<CoinResponseDto> updateUserCoins(
+            @AuthenticationPrincipal CustomUserDetails userDetails, // 또는 Authentication auth 객체
+            @RequestBody CoinRequestDto coinRequestDto) {
+        int amount = coinRequestDto.getAmount(); //내가 볼 때 그냥 token을 다른 테이블에 추가시키는 게 나음 ㅅ;ㅂ 이거 너무 많아 정보가
+        String username = userDetails.getUsername();
+        User updatedUser = userService.processCoins(username, amount);
+        CoinResponseDto responseDTO = CoinResponseDto.fromEntity(updatedUser);
+
+        // 3. 최종적으로 변환된 DTO를 클라이언트에게 전달합니다.
+        return ApiResponse.onSuccess(SuccessCode.TOKEN_PROCESS_SUCCESS, responseDTO);
+    }
     /*
     @Operation(summary = "프로필 사진 첨부", description = "프로필 사진을 첨부하는 메서드입니다.")
     @ApiResponses(value = {

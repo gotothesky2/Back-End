@@ -51,26 +51,11 @@ public class User extends BaseEntity {
     private Byte gradeNum;
 
     @Column(nullable = false)
+    @Builder.Default
     private int token = 30;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private OAuth auth;
-
-    @Builder.Default
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Hmt> hmtResult = new ArrayList<>();
-    public void addHmt(Hmt hmt) {
-        this.hmtResult.add(hmt);
-        hmt.setUser(this);
-    }
-
-    @Builder.Default
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Cst> cstResult = new ArrayList<>();
-    public void addCst(Cst cst) {
-        this.cstResult.add(cst);
-        cst.setUser(this);
-    }
 
     @Builder.Default
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)

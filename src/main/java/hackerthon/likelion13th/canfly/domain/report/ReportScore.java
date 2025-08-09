@@ -1,12 +1,11 @@
 package hackerthon.likelion13th.canfly.domain.report;
 
-import hackerthon.likelion13th.canfly.domain.entity.Achievement;
 import hackerthon.likelion13th.canfly.domain.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import software.amazon.ion.Decimal;
+import java.math.BigDecimal;
 
 @Entity
 @Table(name = "reportScore")
@@ -33,27 +32,20 @@ public class ReportScore extends BaseEntity {
     @Column(name = "student_num")
     private Integer studentNum;      // 수강자 수
 
-    @Column(name = "standard_deviation", length = 50)
-    private Decimal standardDeviation;// 표준편차
+    @Column(name = "standard_deviation", precision = 4, scale = 1)
+    private BigDecimal standardDeviation;// 표준편차
 
-    @Column(name = "subject_average", length = 50)
+    @Column(name = "subject_average")
     private Integer subjectAverage;   // 평균
 
-    @Column(name = "achievement", length = 50)
-    @Enumerated(EnumType.STRING)
-    private Achievement achievement;      // 성취도(A,B,C)
+    @Column(name = "achievement")
+    private String achievement;// 성취도(A,B,C)
 
-    @Column(name = "score", length = 50)
+    @Column(name = "score")
     private Integer score;            // 원점수
 
-    @Column(name = "term", nullable = false)
-    private Integer term;            // 학기 구분
-
     @Column(name = "credit", nullable = false)
-    private Integer credit;          // 학점
-
-    @Column(name = "choice")
-    private Integer choice;          // 선택구분(일선/진선)
+    private Integer credit;          // 학점      // 선택구분(일선/진선)
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "rId", nullable = false)

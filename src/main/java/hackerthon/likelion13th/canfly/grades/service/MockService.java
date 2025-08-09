@@ -10,17 +10,13 @@ import hackerthon.likelion13th.canfly.grades.dto.MockRequestDto;
 import hackerthon.likelion13th.canfly.grades.dto.MockResponseDto;
 import hackerthon.likelion13th.canfly.grades.repository.MockRepository;
 import hackerthon.likelion13th.canfly.grades.repository.MockScoreRepository;
-import hackerthon.likelion13th.canfly.login.auth.mapper.CustomUserDetails;
 import hackerthon.likelion13th.canfly.login.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 
@@ -32,16 +28,11 @@ public class MockService {
     private final MockScoreRepository mockScoreRepository;
     private final UserRepository userRepository;
 
-    @Transactional
-    public Mock findById(Long mockId) {
-        return mockRepository.findById(mockId)
-                .orElseThrow(() -> GeneralException.of(ErrorCode.MOCK_NOT_FOUND));
-    }
 
     @Transactional
-    public MockResponseDto createMock(String userId, MockRequestDto mockRequestDto) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
+    public MockResponseDto createMock(String userName, MockRequestDto mockRequestDto) {
+        User user = userRepository.findByName(userName)
+                .orElseThrow(() -> GeneralException.of(ErrorCode.USER_NOT_FOUND));
 
         Mock newMock = Mock.builder()
                 .examYear(mockRequestDto.getExamYear())
@@ -85,6 +76,7 @@ public class MockService {
                 .name(scoreRequestDto.getName())
                 .build();
         mock.addMockScore(newMockScore); // Mock 엔티티에 MockScore 추가 (양방향 관계 설정)
+        mockScoreRepository.save(newMockScore);
         return new MockResponseDto(mock);
     }
 
@@ -101,7 +93,7 @@ public class MockService {
             throw new IllegalArgumentException("User not found with id: " + userId);
         }
 
-        List<Mock> mocks = mockRepository.findByUser(userRepository.findByUid(userId));
+        List<Mock> mocks = mockRepository.findByUser(userRepository.findByUid(userId).orElseThrow(() -> new IllegalArgumentException("User not found with id: " + userId)));
 
         return mocks.stream()
                 .map(this::convertToDto)
