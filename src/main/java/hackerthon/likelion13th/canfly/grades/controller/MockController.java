@@ -7,6 +7,8 @@ import hackerthon.likelion13th.canfly.grades.dto.MockRequestDto;
 import hackerthon.likelion13th.canfly.grades.dto.MockResponseDto;
 import hackerthon.likelion13th.canfly.grades.service.MockService;
 import hackerthon.likelion13th.canfly.login.auth.mapper.CustomUserDetails;
+import hackerthon.likelion13th.canfly.login.dto.CoinRequestDto;
+import hackerthon.likelion13th.canfly.login.dto.CoinResponseDto;
 import hackerthon.likelion13th.canfly.login.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -38,25 +40,11 @@ public class MockController {
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @RequestBody MockRequestDto mockRequestDto) {
 
-        User user = userService.findUserByProviderId(customUserDetails.getProviderId());
+        User user = userService.findUserByProviderId(customUserDetails.getUsername());
         MockResponseDto dto = mockService.createMock(user.getUid(), mockRequestDto);
 
         return ApiResponse.onSuccess(SuccessCode.MOCK_CREATE_SUCCESS, dto);
 
-    }
-
-    @PostMapping("/{mockId}")
-    @Operation(summary = "모의고사 점수 등록", description = "어떤 모의고사의 특정 과목 성적을 입력하는 메서드입니다..")
-    @ApiResponses({
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "Mockscore_2012", description = "모의고사 성적 등록이 완료되었습니다."),
-    })
-    public ApiResponse<MockResponseDto> createMockScoreLists(
-            @PathVariable Long mockId,
-            @RequestBody MockRequestDto.MockScoreRequestDto mockScoreRequestDto
-            ) {
-
-        MockResponseDto responseDto = mockService.addMockScoreToMock(mockId, mockScoreRequestDto);
-        return ApiResponse.onSuccess(SuccessCode.MOCKSCORE_CREATE_SUCCESS, responseDto);
     }
 
     @GetMapping
@@ -94,26 +82,30 @@ public class MockController {
         return ApiResponse.onSuccess(SuccessCode.MOCKSCORE_GET_SUCCESS, mockScore);
     }
 
-    @PutMapping("/{mockId}")
+    @PatchMapping("/{mockId}")
     @Operation(summary = "모의고사 정보 수정", description = "특정 모의고사의 정보를 수정하는 메서드입니다.")
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "Mock_2013", description = "특정 모의고사 정보 수정이 완료되었습니다."),
     })
     public ApiResponse<MockResponseDto> updateMock(@PathVariable Long mockId, @RequestBody MockRequestDto mockRequestDto) {
+
         MockResponseDto responseDto = mockService.updateMock(mockId, mockRequestDto);
         return ApiResponse.onSuccess(SuccessCode.MOCK_PUT_SUCCESS, responseDto);
     }
 
-    @PutMapping("/{mockId}/{mockScoreId}")
-    @Operation(summary = "모의고사 성적 수정", description = "특정 모의고사의 성적을 수정하는 메서드입니다.")
-    @ApiResponses({
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "Mockscore_2014", description = "모의고사 성적 수정이 완료되었습니다."),
-    })
-    public ApiResponse<MockResponseDto.MockScoreResponseDto> updateMockScore(@PathVariable Long mockId, @PathVariable Long mockScoreId, @RequestBody MockRequestDto.MockScoreRequestDto mockScoreRequestDto) {
-        MockResponseDto.MockScoreResponseDto responseDto = mockService.updateMockScore(mockId, mockScoreRequestDto);
-        return ApiResponse.onSuccess(SuccessCode.MOCKSCORE_PUT_SUCCESS, responseDto);
-    }
-
+//    @Operation(summary = "토큰 사용 및 충전", description = "amount가 0이면 토큰 1개 사용, 0보다 크면 해당 양만큼 충전합니다.")
+//    @PatchMapping("/token")
+//    public ApiResponse<CoinResponseDto> updateUserCoins(
+//            @AuthenticationPrincipal CustomUserDetails userDetails, // 또는 Authentication auth 객체
+//            @RequestBody CoinRequestDto coinRequestDto) {
+//        int amount = coinRequestDto.getAmount(); //내가 볼 때 그냥 token을 다른 테이블에 추가시키는 게 나음 ㅅ;ㅂ 이거 너무 많아 정보가
+//        String username = userDetails.getUsername();
+//        User updatedUser = userService.processCoins(username, amount);
+//        CoinResponseDto responseDTO = CoinResponseDto.fromEntity(updatedUser);
+//
+//        // 3. 최종적으로 변환된 DTO를 클라이언트에게 전달합니다.
+//        return ApiResponse.onSuccess(SuccessCode.TOKEN_PROCESS_SUCCESS, responseDTO);
+//    }
 
     @DeleteMapping("/{mockId}")
     @Operation(summary = "모의고사 삭제", description = "특정 모의고사를 삭제하는 메서드입니다.")

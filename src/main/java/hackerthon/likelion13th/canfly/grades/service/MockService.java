@@ -30,8 +30,8 @@ public class MockService {
 
 
     @Transactional
-    public MockResponseDto createMock(String userName, MockRequestDto mockRequestDto) {
-        User user = userRepository.findByName(userName)
+    public MockResponseDto createMock(String userId, MockRequestDto mockRequestDto) {
+        User user = userRepository.findByUid(userId)
                 .orElseThrow(() -> GeneralException.of(ErrorCode.USER_NOT_FOUND));
 
         Mock newMock = Mock.builder()

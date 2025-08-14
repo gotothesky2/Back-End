@@ -30,9 +30,9 @@ public class ReportService {
     private final UserRepository userRepository;
 
     @Transactional
-    public ReportResponseDto createReport(String userName, ReportRequestDto reportRequestDto) {
-        User user = userRepository.findByName(userName)
-                .orElseThrow(() -> new IllegalArgumentException("User not found with name: " + userName));
+    public ReportResponseDto createReport(String userId, ReportRequestDto reportRequestDto) {
+        User user = userRepository.findByUid(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with name: " + userId));
 
         Report newReport = Report.builder()
                 .categoryName(reportRequestDto.getCategoryName())
