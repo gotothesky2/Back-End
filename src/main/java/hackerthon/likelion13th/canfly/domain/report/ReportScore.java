@@ -26,9 +26,6 @@ public class ReportScore extends BaseEntity {
     @Column(name = "grade")
     private Integer grade;           // 등급
 
-    @Column(name = "ranking")
-    private Integer ranking;         // 석차
-
     @Column(name = "student_num")
     private Integer studentNum;      // 수강자 수
 
