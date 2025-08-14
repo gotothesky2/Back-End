@@ -97,12 +97,12 @@ public class ReportService {
     }
 
     @Transactional
-    public List<ReportResponseDto> getAllReportsByUserName(String userName) {
-        if (!userRepository.existsByName(userName)) {
-            throw new IllegalArgumentException("User not found with name: " + userName);
+    public List<ReportResponseDto> getAllReportsByUserId(String userId) {
+        if (!userRepository.existsById(userId)) {
+            throw new IllegalArgumentException("User not found with uid: " + userId);
         }
 
-        List<Report> reports = reportRepository.findByUser(userRepository.findByName(userName).orElseThrow(() -> new IllegalArgumentException("User not found with name: " + userName)));
+        List<Report> reports = reportRepository.findByUser(userRepository.findByUid(userId).orElseThrow(() -> new IllegalArgumentException("User not found with uid: " + userId)));
 
         return reports.stream()
                 .map(this::convertToDto)
