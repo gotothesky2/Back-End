@@ -25,7 +25,6 @@ public class ReportRequestDto {
     public static class ReportScoreRequestDto {
         private String subject;
         private Integer grade;
-        private Integer ranking;
         private Integer studentNum;
         private BigDecimal standardDeviation;
         private Integer subjectAverage;

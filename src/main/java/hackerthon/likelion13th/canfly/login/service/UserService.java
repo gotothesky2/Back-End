@@ -177,9 +177,8 @@ public class UserService {
     }
 
     @Transactional
-    public User processCoins(String userId, int amount) {
-        User user = userRepository.findByUid(userId)
-                .orElseThrow(() -> new GeneralException(ErrorCode.USER_NOT_FOUND));
+    public User processCoins(String userPId, int amount) {
+        User user = findUserByProviderId(userPId);
         if (amount < 0) {
             throw new IllegalArgumentException("amount는 0 이상이어야 합니다.");
         }

@@ -42,7 +42,6 @@ public class ReportResponseDto {
         private Long scoreId;
         private String subject;
         private Integer grade;
-        private Integer ranking;
         private Integer studentNum;
         private BigDecimal standardDeviation;
         private Integer subjectAverage;
@@ -54,7 +53,6 @@ public class ReportResponseDto {
             this.scoreId = reportScore.getId();
             this.subject = reportScore.getSubject();
             this.grade = reportScore.getGrade();
-            this.ranking = reportScore.getRanking();
             this.studentNum = reportScore.getStudentNum();
             this.standardDeviation = reportScore.getStandardDeviation();
             this.subjectAverage = reportScore.getSubjectAverage();

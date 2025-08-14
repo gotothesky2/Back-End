@@ -38,9 +38,9 @@ public class ReportController {
             @RequestBody ReportRequestDto reportRequestDto) {
 
 
-        User user = userService.findUserByUserName(customUserDetails.getUsername());
+        User user = userService.findUserByProviderId(customUserDetails.getUsername());
 
-        ReportResponseDto responseDto = reportService.createReport(user.getName(), reportRequestDto);
+        ReportResponseDto responseDto = reportService.createReport(user.getUid(), reportRequestDto);
         return ApiResponse.onSuccess(SuccessCode.REPORT_CREATE_SUCCESS, responseDto);
     }
 
@@ -64,8 +64,8 @@ public class ReportController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "Report_2001", description = "전체 내신 조회가 완료되었습니다."),
     })
     public ApiResponse<List<ReportResponseDto>> getAllReportsOfUser(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
-        User user = userService.findUserByUserName(customUserDetails.getUsername());
-        List<ReportResponseDto> allReports = reportService.getAllReportsByUserName(user.getName());
+        User user = userService.findUserByProviderId(customUserDetails.getUsername());
+        List<ReportResponseDto> allReports = reportService.getAllReportsByUserId(user.getUid());
         return ApiResponse.onSuccess(SuccessCode.REPORT_GET_ALL_SUCCESS, allReports);
     }
 

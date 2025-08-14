@@ -30,9 +30,9 @@ public class ReportService {
     private final UserRepository userRepository;
 
     @Transactional
-    public ReportResponseDto createReport(String userName, ReportRequestDto reportRequestDto) {
-        User user = userRepository.findByName(userName)
-                .orElseThrow(() -> new IllegalArgumentException("User not found with name: " + userName));
+    public ReportResponseDto createReport(String userId, ReportRequestDto reportRequestDto) {
+        User user = userRepository.findByUid(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with name: " + userId));
 
         Report newReport = Report.builder()
                 .categoryName(reportRequestDto.getCategoryName())
@@ -49,7 +49,6 @@ public class ReportService {
                         .subject(scoreDto.getSubject())
                         .grade(scoreDto.getGrade())
                         .achievement(scoreDto.getAchievement())
-                        .ranking(scoreDto.getRanking())
                         .studentNum(scoreDto.getStudentNum())
                         .standardDeviation(scoreDto.getStandardDeviation())
                         .subjectAverage(scoreDto.getSubjectAverage())
@@ -76,7 +75,6 @@ public class ReportService {
                 .subject(scoreRequestDto.getSubject())
                 .grade(scoreRequestDto.getGrade())
                 .achievement(scoreRequestDto.getAchievement())
-                .ranking(scoreRequestDto.getRanking())
                 .studentNum(scoreRequestDto.getStudentNum())
                 .standardDeviation(scoreRequestDto.getStandardDeviation())
                 .subjectAverage(scoreRequestDto.getSubjectAverage())
@@ -162,7 +160,6 @@ public class ReportService {
         existingReportScore.setSubject(scoreRequestDto.getSubject());
         existingReportScore.setGrade(scoreRequestDto.getGrade());
         existingReportScore.setAchievement(scoreRequestDto.getAchievement());
-        existingReportScore.setRanking(scoreRequestDto.getRanking());
         existingReportScore.setStudentNum(scoreRequestDto.getStudentNum());
         existingReportScore.setStandardDeviation(scoreRequestDto.getStandardDeviation());
         existingReportScore.setSubjectAverage(scoreRequestDto.getSubjectAverage());

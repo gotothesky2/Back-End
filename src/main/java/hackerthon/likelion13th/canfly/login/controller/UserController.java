@@ -64,9 +64,9 @@ public class UserController {
     public ApiResponse<CoinResponseDto> updateUserCoins(
             @AuthenticationPrincipal CustomUserDetails userDetails, // 또는 Authentication auth 객체
             @RequestBody CoinRequestDto coinRequestDto) {
-        int amount = coinRequestDto.getAmount(); //내가 볼 때 그냥 token을 다른 테이블에 추가시키는 게 나음 ㅅ;ㅂ 이거 너무 많아 정보가
-        String username = userDetails.getUsername();
-        User updatedUser = userService.processCoins(username, amount);
+        int amount = coinRequestDto.getAmount();
+        String userPId = userDetails.getUsername();
+        User updatedUser = userService.processCoins(userPId, amount);
         CoinResponseDto responseDTO = CoinResponseDto.fromEntity(updatedUser);
 
         // 3. 최종적으로 변환된 DTO를 클라이언트에게 전달합니다.
