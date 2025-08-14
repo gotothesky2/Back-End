@@ -33,7 +33,8 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
     private List<String> getAuthorizedUris() {
         return List.of(
                 defaultRedirect,
-                "http://localhost:3000"
+                "http://localhost:3000",
+                "http://localhost:3000/"
         );
     }
 
@@ -74,15 +75,19 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         JwtDto jwt = userService.jwtMakeSave(providerId);
         log.info("🔑 JWT 발급 완료 | providerId={}", providerId);
 
-        /* 5. redirect_uri 검증 */
+        /* 5. 프로필 미완료 여부(needsProfile) 계산 */
+        boolean needsProfile = userService.needsProfile(providerId);
+
+        /* 6. redirect_uri 검증 */
         String frontRedirect = request.getParameter("redirect_uri");
         if (frontRedirect == null || !getAuthorizedUris().contains(frontRedirect)) {
             frontRedirect = defaultRedirect;
         }
 
-        /* 6. accessToken 쿼리 파라미터로 리다이렉트 */
+        /* 7. accessToken + needsProfile로 리다이렉트 */
         String redirectUrl = UriComponentsBuilder.fromUriString(frontRedirect)
                 .queryParam("accessToken", jwt.getAccessToken())
+                .queryParam("needsProfile", needsProfile)
                 .build()
                 .toUriString();
 

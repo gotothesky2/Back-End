@@ -1,10 +1,8 @@
 package hackerthon.likelion13th.canfly.domain.user;
 
-import hackerthon.likelion13th.canfly.domain.cst.Cst;
 import hackerthon.likelion13th.canfly.domain.entity.BaseEntity;
 import hackerthon.likelion13th.canfly.domain.entity.Sex;
 import hackerthon.likelion13th.canfly.domain.field.FieldBookmark;
-import hackerthon.likelion13th.canfly.domain.hmt.Hmt;
 import hackerthon.likelion13th.canfly.domain.major.MajorBookmark;
 import hackerthon.likelion13th.canfly.domain.mock.Mock;
 import hackerthon.likelion13th.canfly.domain.report.Report;
@@ -50,6 +48,10 @@ public class User extends BaseEntity {
     @Column(name = "gradeNum")
     private Byte gradeNum;
 
+    @Setter
+    @Embedded
+    private Address address;
+
     @Column(nullable = false)
     @Builder.Default
     private int token = 30;
@@ -73,7 +75,6 @@ public class User extends BaseEntity {
         mock.setUser(this);
     }
 
-
     @Builder.Default
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Report> reportList = new ArrayList<>();
@@ -82,5 +83,7 @@ public class User extends BaseEntity {
         report.setUser(this);
     }
 
-
+    public void updateAddress(Address address) {
+        this.address = address;
+    }
 }

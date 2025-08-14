@@ -7,6 +7,7 @@ import hackerthon.likelion13th.canfly.login.auth.dto.JwtDto;
 import hackerthon.likelion13th.canfly.login.auth.mapper.CustomUserDetails;
 import hackerthon.likelion13th.canfly.login.dto.CoinRequestDto;
 import hackerthon.likelion13th.canfly.login.dto.CoinResponseDto;
+import hackerthon.likelion13th.canfly.login.dto.ProfileRequestDto;
 import hackerthon.likelion13th.canfly.login.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -16,8 +17,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Map;
 
 @Tag(name = "회원", description = "회원 관련 api 입니다.")
 @RestController
@@ -73,6 +72,22 @@ public class UserController {
         // 3. 최종적으로 변환된 DTO를 클라이언트에게 전달합니다.
         return ApiResponse.onSuccess(SuccessCode.TOKEN_PROCESS_SUCCESS, responseDTO);
     }
+
+    @Operation(summary = "프로필 수정", description = "팝업에서 입력한 전화번호/성별/학교/학년을 저장합니다 -> 성별 (MAN/WOMAN), 학년 (1, 2, 3)")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "USER_2006", description = "프로필 저장이 완료되었습니다.")
+    })
+    @PutMapping("/me/profile")
+    public ApiResponse<Boolean> completeProfile(
+            @AuthenticationPrincipal CustomUserDetails principal,
+            @RequestBody ProfileRequestDto req
+    ) {
+        String providerId = principal.getUsername(); // providerId (CustomUserDetails.getUsername()가 providerId를 반환하도록 한 현재 설계)
+        boolean updated = userService.completeProfile(providerId, req);
+        return ApiResponse.onSuccess(SuccessCode.USER_PROFILE_UPDATE_SUCCESS, updated);
+    }
+
     /*
     @Operation(summary = "프로필 사진 첨부", description = "프로필 사진을 첨부하는 메서드입니다.")
     @ApiResponses(value = {
