@@ -5,6 +5,7 @@ import hackerthon.likelion13th.canfly.login.auth.mapper.CustomUserDetails;
 import hackerthon.likelion13th.canfly.login.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,6 +19,9 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.io.IOException;
 import java.util.List;
 
+import static hackerthon.likelion13th.canfly.login.auth.jwt.FrontRedirectCaptureFilter.ATTR;
+import static hackerthon.likelion13th.canfly.login.auth.jwt.FrontRedirectCaptureFilter.PARAM;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -29,15 +33,6 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
     @Value("${frontend.base-url}")
     private String defaultRedirect;
 
-    /** 허용 URI 화이트리스트 */
-    private List<String> getAuthorizedUris() {
-        return List.of(
-                defaultRedirect,
-                "http://localhost:3000",
-                "http://localhost:3000/"
-        );
-    }
-
     @Override
     public void onAuthenticationSuccess(
             HttpServletRequest request,
@@ -47,10 +42,10 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
         /* 1. OAuth2User 추출 */
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
-        String provider       = oAuth2User.getAttribute("provider"); // kakao
-        String providerId     = oAuth2User.getAttribute("id");       // 4351993247
-        String nickname       = oAuth2User.getAttribute("name");     // 강민준
-        String email          = oAuth2User.getAttribute("email");
+        String provider = oAuth2User.getAttribute("provider"); // kakao
+        String providerId = oAuth2User.getAttribute("id");       // 4351993247
+        String nickname = oAuth2User.getAttribute("name");     // 강민준
+        String email = oAuth2User.getAttribute("email");
 
         /* 2. username 형식: {kakao}강민준 */
         String username = String.format("{%s}%s", provider, nickname);
@@ -74,17 +69,39 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         /* 4. JWT 즉시 발급 (providerId 기준) */
         JwtDto jwt = userService.jwtMakeSave(providerId);
         log.info("🔑 JWT 발급 완료 | providerId={}", providerId);
-
         /* 5. 프로필 미완료 여부(needsProfile) 계산 */
         boolean needsProfile = userService.needsProfile(providerId);
 
-        /* 6. redirect_uri 검증 */
-        String frontRedirect = request.getParameter("redirect_uri");
-        if (frontRedirect == null || !getAuthorizedUris().contains(frontRedirect)) {
+        HttpSession session = request.getSession(false);
+        String frontRedirect = null;
+        if (session != null) {
+            frontRedirect = (String) session.getAttribute(ATTR);
+            session.removeAttribute(ATTR); // 일회성
+            log.info("[FRONT_REDIRECT] loaded from session: {}", frontRedirect);
+        }
+
+        // 혹시 세션이 비어있다면 파라미터/헤더 백업
+        if (frontRedirect == null) {
+            frontRedirect = request.getParameter(PARAM);
+            if (frontRedirect == null) {
+                frontRedirect = request.getParameter("redirect_uri");
+            }
+            if (frontRedirect == null) {
+                frontRedirect = request.getHeader("X-Front-Redirect");
+            }
+        }
+
+        // 화이트리스트(정확 매칭) — 필요 시 정규화 로직 추가
+        List<String> allow = List.of(
+                defaultRedirect,
+                "http://localhost:3000",
+                "http://localhost:3000/"
+        );
+        if (frontRedirect == null || !allow.contains(frontRedirect)) {
+            log.warn("[FRONT_REDIRECT] not allowed or missing → fallback: {}", defaultRedirect);
             frontRedirect = defaultRedirect;
         }
 
-        /* 7. accessToken + needsProfile로 리다이렉트 */
         String redirectUrl = UriComponentsBuilder.fromUriString(frontRedirect)
                 .queryParam("accessToken", jwt.getAccessToken())
                 .queryParam("needsProfile", needsProfile)

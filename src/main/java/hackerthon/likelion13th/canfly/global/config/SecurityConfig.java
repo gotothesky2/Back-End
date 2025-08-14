@@ -1,6 +1,7 @@
 package hackerthon.likelion13th.canfly.global.config;
 
 import hackerthon.likelion13th.canfly.login.auth.jwt.AuthCreationFilter;
+import hackerthon.likelion13th.canfly.login.auth.jwt.FrontRedirectCaptureFilter;
 import hackerthon.likelion13th.canfly.login.auth.jwt.JwtValidationFilter;
 import hackerthon.likelion13th.canfly.login.auth.utils.OAuth2SuccessHandler;
 import hackerthon.likelion13th.canfly.login.auth.utils.OAuth2UserServiceImpl;
@@ -11,9 +12,9 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
-import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -31,6 +32,7 @@ public class SecurityConfig {
     private final JwtValidationFilter jwtValidationFilter;
     private final OAuth2UserServiceImpl oAuth2UserService;
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
+    private final FrontRedirectCaptureFilter frontRedirectCaptureFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -45,11 +47,9 @@ public class SecurityConfig {
                                 "/health",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
-                                "/oauth2/authorization/kakao",
-                                "/login/oauth2/code/**",
+                                "/oauth2/**",             // 🟡 카카오 OAuth 리디렉션
+                                "/login/oauth2/**",        // 🟡 카카오 OAuth 콜백
                                 "/token/**",
-                                "/oauth/**",
-                                "/token/return",
                                 "/index.html",
                                 "/users/me",
                                 "/users/logout",
@@ -68,6 +68,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
+                .addFilterBefore(frontRedirectCaptureFilter, OAuth2AuthorizationRequestRedirectFilter.class)
                 .addFilterBefore(authCreationFilter, AuthorizationFilter.class)
                 .addFilterBefore(jwtValidationFilter, AuthCreationFilter.class);
 
