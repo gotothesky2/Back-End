@@ -20,6 +20,9 @@ public class FieldBookmark extends BaseEntity {
     @Column(name = "fbId", nullable = false)
     private Integer id;
 
+    @Column(name = "fieldRecommend")
+    private Boolean isRecommend = false;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fId", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)

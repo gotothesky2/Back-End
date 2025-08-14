@@ -1,5 +1,6 @@
 package hackerthon.likelion13th.canfly.login.service;
 
+import hackerthon.likelion13th.canfly.domain.user.Address;
 import hackerthon.likelion13th.canfly.domain.user.User;
 import hackerthon.likelion13th.canfly.global.api.ErrorCode;
 import hackerthon.likelion13th.canfly.global.exception.GeneralException;
@@ -8,6 +9,7 @@ import hackerthon.likelion13th.canfly.login.auth.dto.JwtDto;
 import hackerthon.likelion13th.canfly.login.auth.jwt.JwtTokenUtils;
 import hackerthon.likelion13th.canfly.login.auth.service.JpaUserDetailsManager;
 import hackerthon.likelion13th.canfly.login.converter.UserConverter;
+import hackerthon.likelion13th.canfly.login.dto.ProfileRequestDto;
 import hackerthon.likelion13th.canfly.login.dto.UserRequestDto;
 import hackerthon.likelion13th.canfly.login.repository.OAuthRepository;
 import hackerthon.likelion13th.canfly.login.repository.UserRepository;
@@ -124,6 +126,42 @@ public class UserService {
 
         // User 삭제 (OAuth 는 FK cascade 로 같이 삭제)
         userRepository.delete(user);
+    }
+
+    public boolean needsProfile(String providerId) {
+        User user = findUserByProviderId(providerId);
+
+        boolean missingSex        = (user.getSex() == null);
+        boolean missingPhone      = (user.getPhoneNumber() == null || user.getPhoneNumber().isBlank());
+        boolean missingHighschool = (user.getHighschool() == null || user.getHighschool().isBlank());
+
+        Address addr = user.getAddress();
+        boolean missingAddress = (addr == null) || addr.isEmpty();
+
+        return missingSex || missingPhone || missingHighschool || missingAddress;
+    }
+
+    @Transactional
+    public boolean completeProfile(String providerId, ProfileRequestDto req) {
+        User user = findUserByProviderId(providerId);
+
+        user.setPhoneNumber(req.getPhoneNumber());
+        user.setSex(req.getSex());
+        user.setHighschool(req.getHighschool());
+        user.setGradeNum(req.getGradeNum());
+
+        String zipcode = req.getZipcode();
+        String address = req.getAddress();
+        String detail = req.getAddressDetail();
+
+        // 새로운 주소 설정
+        Address newAddress = new Address(zipcode, address, detail);
+        user.updateAddress(newAddress); // User 엔티티에 주소 업데이트
+        userRepository.save(user);
+
+        boolean stillNeeds = this.needsProfile(providerId);
+
+        return !stillNeeds;
     }
 
     public String checkMemberByName(String username) {

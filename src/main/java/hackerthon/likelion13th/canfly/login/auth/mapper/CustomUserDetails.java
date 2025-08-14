@@ -1,12 +1,12 @@
 package hackerthon.likelion13th.canfly.login.auth.mapper;
 
+import hackerthon.likelion13th.canfly.domain.user.Address;
 import hackerthon.likelion13th.canfly.domain.user.OAuth;
 import hackerthon.likelion13th.canfly.domain.user.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -25,6 +25,7 @@ public class CustomUserDetails implements UserDetails {
     private String providerId;
     private String username;
     private String nickname;
+    private Address address;
     private String email;
     private String provider;
     private String accessToken;
