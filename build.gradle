@@ -62,6 +62,9 @@ dependencies {
 
 	// Env
 	implementation 'io.github.cdimascio:dotenv-java:3.0.0'
+
+	// Excel
+	implementation 'org.apache.poi:poi-ooxml:5.2.5'
 }
 
 tasks.named('test') {
