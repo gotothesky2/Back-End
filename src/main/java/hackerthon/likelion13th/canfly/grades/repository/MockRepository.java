@@ -10,4 +10,9 @@ import java.util.Optional;
 public interface MockRepository extends JpaRepository<Mock, Long> {
 
     List<Mock> findByUser(User user);
+
+    // 사용자(uid) + 연/월/학년으로 기존 모의고사 존재 여부 확인
+    Optional<Mock> findByUserUidAndExamYearAndExamMonthAndExamGrade(
+            String uid, Integer examYear, Integer examMonth, Integer examGrade
+    );
 }
