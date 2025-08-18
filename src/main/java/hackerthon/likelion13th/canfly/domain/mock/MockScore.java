@@ -39,7 +39,7 @@ public class MockScore extends BaseEntity {
     @Column(name = "cumulative", precision = 5, scale = 2)
     private BigDecimal cumulative;
 
-    /** 과목 카테고리 (예: 국어/수학) -> 국어 1 , 수학 2, 영어 3, 한국사 4, 사회 5, 과학 6 */
+    /** 과목 카테고리 (예: 국어/수학) -> 국어 1 , 수학 2, 영어 3, 한국사 4, 탐구1 5, 탐구2 6, 제2외국어 7*/
     @Column(name = "category", nullable = false)
     private Integer category;
 

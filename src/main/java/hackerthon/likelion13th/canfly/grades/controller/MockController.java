@@ -3,6 +3,8 @@ package hackerthon.likelion13th.canfly.grades.controller;
 import hackerthon.likelion13th.canfly.domain.user.User;
 import hackerthon.likelion13th.canfly.global.api.ApiResponse;
 import hackerthon.likelion13th.canfly.global.api.SuccessCode;
+import hackerthon.likelion13th.canfly.grades.dto.MockCreateRequest;
+import hackerthon.likelion13th.canfly.grades.dto.MockCreateResponse;
 import hackerthon.likelion13th.canfly.grades.dto.MockRequestDto;
 import hackerthon.likelion13th.canfly.grades.dto.MockResponseDto;
 import hackerthon.likelion13th.canfly.grades.service.MockService;
@@ -55,7 +57,7 @@ public class MockController {
 
     public ApiResponse<List<MockResponseDto>> getAllMocksOfUser(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
         /* providerId 기반으로 User 찾기 */
-        User user = userService.findUserByProviderId(customUserDetails.getProviderId());
+        User user = userService.findUserByProviderId(customUserDetails.getUsername());
         List<MockResponseDto> allMocks = mockService.getAllMocksByUserId(user.getUid());
 
         return ApiResponse.onSuccess(SuccessCode.MOCK_GET_ALL_SUCCESS, allMocks);
@@ -117,4 +119,25 @@ public class MockController {
         return ApiResponse.onSuccess(SuccessCode.MOCK_DELETE_SUCCESS, true);
     }
 
+    // GPT
+    @PostMapping("/excel")
+    @Operation(
+            summary = "모의고사 등록(엑셀 평가)",
+            description = "엑셀 수식으로 각 과목의 백분위/등급/누적(%)를 계산한 뒤 저장합니다. " +
+                    "규칙: 수학 3택1, (과탐/사탐) 합산 최대 2, 제2외국어 최대 1. " +
+                    "표준점수 과목에서 계산 결과가 (백분위=0, 등급=0, 누적=0)이면 입력 오류로 처리됩니다."
+    )
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "Mock_2011", description = "모의고사 등록이 완료되었습니다."),
+    })
+    public ApiResponse<MockCreateResponse> createMockByExcel(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @RequestBody MockCreateRequest req
+    ) {
+        User user = userService.findUserByProviderId(customUserDetails.getUsername());
+
+        MockCreateResponse res = mockService.createMockByExcel(user.getUid(), req);
+
+        return ApiResponse.onSuccess(SuccessCode.MOCK_CREATE_SUCCESS, res);
+    }
 }
