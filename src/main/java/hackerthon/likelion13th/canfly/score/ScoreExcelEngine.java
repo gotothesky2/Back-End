@@ -1,23 +1,29 @@
 package hackerthon.likelion13th.canfly.score;
 
-
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.openxml4j.opc.OPCPackage;
+import org.apache.poi.openxml4j.opc.PackageAccess;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
+import java.util.concurrent.Semaphore;
 
 /**
  * 엑셀 템플릿(시트명: 수능입력)의 B열에서 과목 라벨을 찾아
  * 같은 행의 C열(입력)을 채우고, D/E/F열(백분위/등급/누적%)을 수식 평가하여 읽어오는 엔진.
  *
- * - 파일은 절대 저장하지 않음 (메모리에서만 처리)
+ * - 파일은 절대 영속 저장하지 않음(템플릿을 임시파일로 복사 후 파일 기반으로만 연다)
  * - 영어/한국사/제2외국어는 "등급"을 C열에 넣어도 됨 (엔진은 점수/등급을 구분하지 않음)
+ * - 메모리 절약을 위해 InputStream 기반이 아닌 OPCPackage(파일 기반)으로 Workbook을 연다.
  */
 @Service
 public class ScoreExcelEngine {
@@ -32,14 +38,22 @@ public class ScoreExcelEngine {
     private static final int COL_GRADE   = 4; // E열: 등급
     private static final int COL_CUM     = 5; // F열: 누적 백분위(%)
 
-    private final byte[] templateBytes;
+    /** 템플릿을 임시파일로 복사해 두고, 매 요청마다 파일 기반으로 연다(힙 절약). */
+    private final Path templateFile;
+
+    /** 동시 실행 제한(폭주 시 메모리 보호). 시스템 프로퍼티 excel.permits 로 조절 가능(기본 8). */
+    private final Semaphore excelPermits = new Semaphore(Integer.getInteger("excel.permits", 8));
 
     public ScoreExcelEngine() throws IOException {
         try (InputStream is = getClass().getResourceAsStream(TEMPLATE_PATH)) {
             if (is == null) {
                 throw new IllegalStateException("Excel template not found: " + TEMPLATE_PATH);
             }
-            this.templateBytes = is.readAllBytes();
+            Path tmp = Files.createTempFile("score_template_", ".xlsx");
+            Files.copy(is, tmp, StandardCopyOption.REPLACE_EXISTING);
+            this.templateFile = tmp;
+            // 컨테이너 종료 시 정리
+            tmp.toFile().deleteOnExit();
         }
     }
 
@@ -51,7 +65,22 @@ public class ScoreExcelEngine {
     public Map<String, SubjectResult> evaluateAll(List<SubjectInput> inputs) {
         if (inputs == null || inputs.isEmpty()) return Collections.emptyMap();
 
-        try (Workbook wb = new XSSFWorkbook(new ByteArrayInputStream(templateBytes))) {
+        try {
+            excelPermits.acquire();
+            return doEvaluate(inputs);
+        } catch (InterruptedException ie) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("Excel 평가 대기 중 인터럽트", ie);
+        } finally {
+            excelPermits.release();
+        }
+    }
+
+    private Map<String, SubjectResult> doEvaluate(List<SubjectInput> inputs) {
+        // ✅ 파일 기반으로 열기: InputStream 경로는 메모리 폭주 위험
+        try (OPCPackage pkg = OPCPackage.open(templateFile.toFile(), PackageAccess.READ_WRITE);
+             Workbook wb = new XSSFWorkbook(pkg)) {
+
             Sheet sheet = Optional.ofNullable(wb.getSheet(SHEET_NAME))
                     .orElseThrow(() -> new IllegalStateException("시트를 찾을 수 없습니다: " + SHEET_NAME));
 
@@ -89,7 +118,9 @@ public class ScoreExcelEngine {
             return result;
 
         } catch (IOException e) {
-            throw new IllegalStateException("Excel 평가 중 오류", e);
+            throw new IllegalStateException("Excel 평가 중 I/O 오류", e);
+        } catch (InvalidFormatException e) {
+            throw new IllegalStateException("Excel 포맷 오류", e);
         }
     }
 
@@ -126,7 +157,6 @@ public class ScoreExcelEngine {
     }
 
     private static void setNumericOrString(Cell cell, Object value) {
-        // // 입력값이 정수(표준점수/등급)라고 가정하지만, 혹시 문자열로 올 경우도 방어
         if (value == null) {
             cell.setBlank();
             return;
@@ -143,9 +173,7 @@ public class ScoreExcelEngine {
         return switch (cell.getCellType()) {
             case STRING -> cell.getStringCellValue();
             case NUMERIC -> {
-                // B열이 숫자일 일은 거의 없지만 방어적으로 처리
                 double d = cell.getNumericCellValue();
-                // 소수점 없는 정수라면 깔끔하게 문자열로 변환
                 if (d == Math.rint(d)) yield String.valueOf((long) d);
                 else yield String.valueOf(d);
             }
