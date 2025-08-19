@@ -11,6 +11,7 @@ import hackerthon.likelion13th.canfly.login.auth.service.JpaUserDetailsManager;
 import hackerthon.likelion13th.canfly.login.converter.UserConverter;
 import hackerthon.likelion13th.canfly.login.dto.ProfileRequestDto;
 import hackerthon.likelion13th.canfly.login.dto.UserRequestDto;
+import hackerthon.likelion13th.canfly.login.dto.UserResponseDto;
 import hackerthon.likelion13th.canfly.login.repository.OAuthRepository;
 import hackerthon.likelion13th.canfly.login.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,6 +20,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -132,20 +135,19 @@ public class UserService {
         User user = findUserByProviderId(providerId);
 
         boolean missingSex        = (user.getSex() == null);
-        boolean missingPhone      = (user.getPhoneNumber() == null || user.getPhoneNumber().isBlank());
+        boolean missingGradeNum      = (user.getGradeNum() == null);
         boolean missingHighschool = (user.getHighschool() == null || user.getHighschool().isBlank());
 
         Address addr = user.getAddress();
         boolean missingAddress = (addr == null) || addr.isEmpty();
 
-        return missingSex || missingPhone || missingHighschool || missingAddress;
+        return missingSex || missingGradeNum || missingHighschool || missingAddress;
     }
 
     @Transactional
     public boolean completeProfile(String providerId, ProfileRequestDto req) {
         User user = findUserByProviderId(providerId);
 
-        user.setPhoneNumber(req.getPhoneNumber());
         user.setSex(req.getSex());
         user.setHighschool(req.getHighschool());
         user.setGradeNum(req.getGradeNum());
@@ -166,7 +168,7 @@ public class UserService {
 
     public String checkMemberByName(String username) {
         User user = findUserByUserName(username);
-        if (user.getPhoneNumber() != null) return "wasUser";
+        //if (user.getPhoneNumber() != null) return "wasUser";
         return "newUser";
     }
 
@@ -176,31 +178,63 @@ public class UserService {
                 .orElseThrow(() -> new GeneralException(ErrorCode.USER_NOT_FOUND_BY_USERNAME));
     }
 
+    //코인 충전&차감
     @Transactional
     public User processCoins(String userPId, int amount) {
         User user = findUserByProviderId(userPId);
-        if (amount < 0) {
-            throw new IllegalArgumentException("amount는 0 이상이어야 합니다.");
-        }
-
         if (amount == 0) {
-            // amount가 0이면 토큰 1개 사용
-            return useCoin(user);
-        } else {
-            // amount가 0보다 크면 토큰 충전
-            return chargeCoin(user, amount);
+            throw new IllegalArgumentException("amount는 0일 수 없습니다.");
+        }
+        else {
+            if (user.getToken() + amount < 0) {
+                throw new IllegalArgumentException("코인이 부족하여 사용할 수 없습니다.");
+            } else {
+                return controlCoin(user, amount);
+            }
         }
     }
-    public User useCoin(User user) {
-        if (user.getToken() <= 0) {
-            throw new IllegalStateException("코인이 부족하여 사용할 수 없습니다.");
-        }
-        user.setToken(user.getToken() - 1);
-        return user;
-    }
-
-    public User chargeCoin(User user, int amount) {
+// amount의 양/음 여부에 따라 충전 혹은 차감됨
+    public User controlCoin(User user, int amount) {
         user.setToken(user.getToken() + amount);
         return user;
+    }
+
+    public UserResponseDto getAllInfo(String providerId) {
+        User user = findUserByProviderId(providerId);
+        User AllInfo = User.builder()
+                .name(user.getName())
+                .email(user.getEmail())
+                .sex(user.getSex())
+                .highschool(user.getHighschool())
+                .gradeNum(user.getGradeNum())
+                .address(user.getAddress())
+                .token(user.getToken())
+                .build();
+        UserResponseDto allDto = new UserResponseDto(AllInfo);
+        return allDto;
+    }
+    public UserResponseDto getBasicInfo(String providerId) {
+        User user = findUserByProviderId(providerId);
+        User basicInfo = User.builder()
+                .name(user.getName())
+                .highschool(user.getHighschool())
+                .gradeNum(user.getGradeNum())
+                .token(user.getToken())
+                .build();
+        UserResponseDto basicDto = new UserResponseDto(basicInfo);
+        return basicDto;
+    }
+
+    public UserResponseDto getMypageInfo(String providerId) {
+        User user = findUserByProviderId(providerId);
+        User mypageInfo = User.builder()
+                .name(user.getName())
+                .highschool(user.getHighschool())
+                .gradeNum(user.getGradeNum())
+                .email(user.getEmail())
+                .sex(user.getSex())
+                .build();
+        UserResponseDto mypageDto = new UserResponseDto(mypageInfo);
+        return mypageDto;
     }
 }

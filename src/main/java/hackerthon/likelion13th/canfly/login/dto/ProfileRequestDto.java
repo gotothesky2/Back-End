@@ -11,12 +11,6 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ProfileRequestDto {
-    @Schema(description = "전화번호")
-    @Pattern(
-            regexp = "^[0-9\\-]{9,15}$",
-            message = "전화번호 형식이 올바르지 않습니다."
-    )
-    private String phoneNumber;
 
     @Schema(description = "성별")
     private Sex sex;

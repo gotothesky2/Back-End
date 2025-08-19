@@ -44,19 +44,19 @@ public class ReportController {
         return ApiResponse.onSuccess(SuccessCode.REPORT_CREATE_SUCCESS, responseDto);
     }
 
-    @PostMapping("/{reportId}")
-    @Operation(summary = "내신 점수 등록", description = "어떤 내신의 특정 과목 성적을 입력하는 메서드입니다..")
-    @ApiResponses({
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "Report_2012", description = "내신 성적 등록이 완료되었습니다."),
-    })
-    public ApiResponse<ReportResponseDto> createReportScoreLists(
-            @PathVariable Long reportId,
-            @RequestBody ReportRequestDto.ReportScoreRequestDto reportScoreRequestDto
-    ) {
-
-        ReportResponseDto responseDto = reportService.addReportScoreToReport(reportId, reportScoreRequestDto);
-        return ApiResponse.onSuccess(SuccessCode.REPORTSCORE_CREATE_SUCCESS, responseDto);
-    }
+//    @PostMapping("/{reportId}")
+//    @Operation(summary = "내신 점수 등록", description = "어떤 내신의 특정 과목 성적을 입력하는 메서드입니다..")
+//    @ApiResponses({
+//            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "Report_2012", description = "내신 성적 등록이 완료되었습니다."),
+//    })
+//    public ApiResponse<ReportResponseDto> createReportScoreLists(
+//            @PathVariable Long reportId,
+//            @RequestBody ReportRequestDto.ReportScoreRequestDto reportScoreRequestDto
+//    ) {
+//
+//        ReportResponseDto responseDto = reportService.addReportScoreToReport(reportId, reportScoreRequestDto);
+//        return ApiResponse.onSuccess(SuccessCode.REPORTSCORE_CREATE_SUCCESS, responseDto);
+//    }
 
     @GetMapping
     @Operation(summary = "전체 내신 조회", description = "사용자가 진행했던 모든 내신를 조회하는 메서드입니다.")

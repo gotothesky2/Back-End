@@ -3,7 +3,6 @@ package hackerthon.likelion13th.canfly.domain.report;
 import hackerthon.likelion13th.canfly.domain.entity.BaseEntity;
 import hackerthon.likelion13th.canfly.domain.user.User;
 import hackerthon.likelion13th.canfly.domain.entity.CategoryName;
-import hackerthon.likelion13th.canfly.grades.dto.ReportResponseDto;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
