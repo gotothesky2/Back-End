@@ -21,7 +21,6 @@ public class ReportRequestDto {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class ReportScoreRequestDto {
-        private Long scoreId;
         private String subject;
         private Integer grade;
         private Integer studentNum;

@@ -66,8 +66,6 @@ public class UserController {
         String userPId = userDetails.getUsername();
         User updatedUser = userService.processCoins(userPId, amount);
         CoinResponseDto responseDTO = CoinResponseDto.fromEntity(updatedUser);
-
-        // 3. 최종적으로 변환된 DTO를 클라이언트에게 전달합니다.
         return ApiResponse.onSuccess(SuccessCode.TOKEN_PROCESS_SUCCESS, responseDTO);
     }
 
