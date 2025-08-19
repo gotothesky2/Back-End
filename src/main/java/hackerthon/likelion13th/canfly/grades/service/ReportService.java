@@ -147,8 +147,6 @@ public class ReportService {
         Report existingReport = reportRepository.findById(reportId)
                 .orElseThrow(() -> new IllegalArgumentException("Report not found with id: " + reportId));
         existingReport.setCategoryName(reportRequestDto.getCategoryName());
-        existingReport.setTerm(reportRequestDto.getTerm());
-        existingReport.setUserGrade(reportRequestDto.getUserGrade());
         Report updatedReport = reportRepository.save(existingReport);
         return convertToDto(updatedReport);
     }

@@ -15,6 +15,7 @@ public enum SuccessCode implements BaseCode { // 성공
     USER_REISSUE_SUCCESS(HttpStatus.OK, "USER_2002", "토큰 재발급이 완료되었습니다."),
     USER_DELETE_SUCCESS(HttpStatus.OK, "USER_2003", "회원탈퇴가 완료되었습니다."),
     USER_PROFILE_UPDATE_SUCCESS(HttpStatus.OK, "USER_2006", "프로필 저장이 완료되었습니다."),
+    USER_INFO_GET_SUCCESS(HttpStatus.OK, "USER_2007", "유저 정보 조회가 완료되었습니다."),
 
     MOCK_CREATE_SUCCESS(HttpStatus.CREATED, "MOCK_2011", "모의고사 등록이 완료되었습니다."),
     MOCKSCORE_CREATE_SUCCESS(HttpStatus.CREATED, "MOCKSCORE_2011", "모의고사 성적 등록이 완료되었습니다."),

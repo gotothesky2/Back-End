@@ -21,9 +21,6 @@ public class MajorBookmark extends BaseEntity {
     @Column(name = "mbId", nullable = false)
     private Integer id;
 
-    @Column(name = "majorRecommend")
-    private Boolean isRecommend = false;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "mId", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)

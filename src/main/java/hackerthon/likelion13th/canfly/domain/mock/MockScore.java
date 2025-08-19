@@ -6,9 +6,10 @@ import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
+
 import java.math.BigDecimal;
 
-import static jakarta.persistence.FetchType.LAZY;
+import static jakarta.persistence.FetchType.EAGER;
 
 @Entity
 @Table(name = "mockScore")
@@ -32,7 +33,7 @@ public class MockScore extends BaseEntity {
     private Integer percentile;
 
     /** 등급 */
-    @Column(name = "grade", nullable = false)
+    @Column(name = "grade")
     private Integer grade;
 
     /** 누적 백분위(%) */
@@ -47,7 +48,7 @@ public class MockScore extends BaseEntity {
     @Column(name = "name")
     private String name;
 
-    @ManyToOne(fetch = LAZY, optional = false)
+    @ManyToOne(fetch = EAGER, optional = false)
     @JoinColumn(name = "mockId", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Mock mock;

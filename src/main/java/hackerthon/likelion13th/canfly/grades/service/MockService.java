@@ -71,25 +71,25 @@ public class MockService {
 
         return new MockResponseDto(newMock);
     }
-
-    @Transactional
-    public MockResponseDto addMockScoreToMock(Long mockId, MockRequestDto.MockScoreRequestDto scoreRequestDto) {
-        Mock mock = mockRepository.findById(mockId)
-                .orElseThrow(() -> new IllegalArgumentException("Mock not found with id: " + mockId));
-
-        // DTO 필드에서 MockScore 엔티티 직접 생성
-        MockScore newMockScore = MockScore.builder()
-                .standardScore(scoreRequestDto.getStandardScore())
-                .percentile(scoreRequestDto.getPercentile())
-                .grade(scoreRequestDto.getGrade())
-                .cumulative(scoreRequestDto.getCumulative())
-                .category(scoreRequestDto.getCategory())
-                .name(scoreRequestDto.getName())
-                .build();
-        mock.addMockScore(newMockScore); // Mock 엔티티에 MockScore 추가 (양방향 관계 설정)
-        mockScoreRepository.save(newMockScore);
-        return new MockResponseDto(mock);
-    }
+// 사용하지 않는 관계로 주석 처리
+//    @Transactional
+//    public MockResponseDto addMockScoreToMock(Long mockId, MockRequestDto.MockScoreRequestDto scoreRequestDto) {
+//        Mock mock = mockRepository.findById(mockId)
+//                .orElseThrow(() -> new IllegalArgumentException("Mock not found with id: " + mockId));
+//
+//        // DTO 필드에서 MockScore 엔티티 직접 생성
+//        MockScore newMockScore = MockScore.builder()
+//                .standardScore(scoreRequestDto.getStandardScore())
+//                .percentile(scoreRequestDto.getPercentile())
+//                .grade(scoreRequestDto.getGrade())
+//                .cumulative(scoreRequestDto.getCumulative())
+//                .category(scoreRequestDto.getCategory())
+//                .name(scoreRequestDto.getName())
+//                .build();
+//        mock.addMockScore(newMockScore); // Mock 엔티티에 MockScore 추가 (양방향 관계 설정)
+//        mockScoreRepository.save(newMockScore);
+//        return new MockResponseDto(mock);
+//    }
 
     @Transactional(readOnly = true)
     public MockResponseDto getMockById(Long mockId) {
@@ -125,17 +125,6 @@ public class MockService {
     }
 
     @Transactional
-    public MockResponseDto updateMock(Long mockId, MockRequestDto mockRequestDto) {
-        Mock existingMock = mockRepository.findById(mockId)
-                .orElseThrow(() -> new IllegalArgumentException("Mock not found with id: " + mockId));
-        existingMock.setExamYear(mockRequestDto.getExamYear());
-        existingMock.setExamMonth(mockRequestDto.getExamMonth());
-        existingMock.setExamGrade(mockRequestDto.getExamGrade());
-        Mock updatedMock = mockRepository.save(existingMock);
-        return convertToDto(updatedMock);
-    }
-
-    @Transactional
     public MockResponseDto.MockScoreResponseDto updateMockScore(Long mockScoreId, MockRequestDto.MockScoreRequestDto scoreRequestDto) {
         MockScore existingMockScore = mockScoreRepository.findById(mockScoreId)
                 .orElseThrow(() -> new IllegalArgumentException("MockScore not found with id: " + mockScoreId));
@@ -148,6 +137,22 @@ public class MockService {
         MockScore updatedMockScore = mockScoreRepository.save(existingMockScore);
         return convertToDto(updatedMockScore);
     }
+
+//    if (mockRequestDto.getScoreLists() != null && !mockRequestDto.getScoreLists().isEmpty()) {
+//        for (MockRequestDto.MockScoreRequestDto scoreDto : mockRequestDto.getScoreLists()) {
+//            MockScore mockScore = MockScore.builder()
+//                    .standardScore(scoreDto.getStandardScore())
+//                    .percentile(scoreDto.getPercentile())
+//                    .grade(scoreDto.getGrade())
+//                    .cumulative(scoreDto.getCumulative())
+//                    .category(scoreDto.getCategory())
+//                    .name(scoreDto.getName())
+//                    .build();
+//            newMock.addMockScore(mockScore);
+//        }
+//    }
+//        user.addMock(newMock);
+//        mockRepository.save(newMock);
 
     @Transactional
     public void deleteMock(Long mockId) {

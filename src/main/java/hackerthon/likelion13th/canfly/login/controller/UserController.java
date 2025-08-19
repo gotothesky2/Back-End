@@ -5,9 +5,7 @@ import hackerthon.likelion13th.canfly.global.api.ApiResponse;
 import hackerthon.likelion13th.canfly.global.api.SuccessCode;
 import hackerthon.likelion13th.canfly.login.auth.dto.JwtDto;
 import hackerthon.likelion13th.canfly.login.auth.mapper.CustomUserDetails;
-import hackerthon.likelion13th.canfly.login.dto.CoinRequestDto;
-import hackerthon.likelion13th.canfly.login.dto.CoinResponseDto;
-import hackerthon.likelion13th.canfly.login.dto.ProfileRequestDto;
+import hackerthon.likelion13th.canfly.login.dto.*;
 import hackerthon.likelion13th.canfly.login.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -88,6 +86,47 @@ public class UserController {
         return ApiResponse.onSuccess(SuccessCode.USER_PROFILE_UPDATE_SUCCESS, updated);
     }
 
+    @Operation(summary = "유저 전체 정보", description = "유저의 모든 정보(auth 제외)를 GET합니다.")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "USER_2007", description = "전체 정보 조회 완료")
+    })
+    @GetMapping("/info")
+    public ApiResponse<UserResponseDto> getAllUserInfo(
+            @AuthenticationPrincipal CustomUserDetails principal
+    ) {
+        String providerId = principal.getUsername();
+        UserResponseDto allInfo = userService.getAllInfo(providerId);
+        return ApiResponse.onSuccess(SuccessCode.USER_INFO_GET_SUCCESS, allInfo);
+    }
+
+    @Operation(summary = "유저 메인페이지 정보", description = "메인페이지에서 표시할 유저의 정보를 GET합니다.")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "USER_2008", description = "메인페이지 정보 조회 완료")
+    })
+    @GetMapping("/info/mainpage")
+    public ApiResponse<UserResponseDto> getMainPageInfo(
+            @AuthenticationPrincipal CustomUserDetails principal
+    ) {
+        String providerId = principal.getUsername();
+        UserResponseDto basicInfo = userService.getBasicInfo(providerId);
+        return ApiResponse.onSuccess(SuccessCode.USER_INFO_GET_SUCCESS, basicInfo);
+    }
+
+    @Operation(summary = "유저 마이페이지 정보", description = "마이페이지에서 표시할 유저의 정보를 GET합니다.")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "USER_2009", description = "마이페이지 정보 조회 완료")
+    })
+    @GetMapping("/info/mypage")
+    public ApiResponse<UserResponseDto> getMyPageInfo(
+            @AuthenticationPrincipal CustomUserDetails principal
+    ) {
+        String providerId = principal.getUsername();
+        UserResponseDto myPageInfo = userService.getMypageInfo(providerId);
+        return ApiResponse.onSuccess(SuccessCode.USER_INFO_GET_SUCCESS, myPageInfo);
+    }
     /*
     @Operation(summary = "프로필 사진 첨부", description = "프로필 사진을 첨부하는 메서드입니다.")
     @ApiResponses(value = {
