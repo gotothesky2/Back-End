@@ -57,7 +57,7 @@ public class UserController {
         return ApiResponse.onSuccess(SuccessCode.USER_DELETE_SUCCESS, 1);
     }
 
-    @Operation(summary = "토큰 사용 및 충전", description = "amount가 0이면 토큰 1개 사용, 0보다 크면 해당 양만큼 충전합니다.")
+    @Operation(summary = "토큰 사용 및 충전", description = "amount만큼 보유 토큰 수량에 더합니다. (음수 가능, 0 불가)")
     @PatchMapping("/token")
     public ApiResponse<CoinResponseDto> updateUserCoins(
             @AuthenticationPrincipal CustomUserDetails userDetails, // 또는 Authentication auth 객체

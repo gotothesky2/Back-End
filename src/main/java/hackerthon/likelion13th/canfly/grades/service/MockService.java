@@ -26,6 +26,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -42,15 +43,32 @@ public class MockService {
 
     @Transactional
     public MockResponseDto createMock(String userId, MockRequestDto mockRequestDto) {
-        User user = userRepository.findByUid(userId)
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> GeneralException.of(ErrorCode.USER_NOT_FOUND));
 
-        Mock newMock = Mock.builder()
-                .examYear(mockRequestDto.getExamYear())
-                .examMonth(mockRequestDto.getExamMonth())
-                .examGrade(mockRequestDto.getExamGrade())
-                .user(user)
-                .build();
+        Optional<Mock> existingMockOpt = mockRepository.findByUserUidAndExamYearAndExamMonthAndExamGrade(
+                user.getUid(),
+                mockRequestDto.getExamYear(),
+                mockRequestDto.getExamMonth(),
+                mockRequestDto.getExamGrade()
+        );
+
+        Mock updateMock = null;
+        if (existingMockOpt.isPresent()) {
+            // Mock 존재 시에는 수정
+            updateMock = existingMockOpt.get();
+            updateMock.getScoreLists().clear();
+
+        } else {
+            // Mock 없으면 생성
+            updateMock = Mock.builder()
+                    .user(user)
+                    .examYear(mockRequestDto.getExamYear())
+                    .examMonth(mockRequestDto.getExamMonth())
+                    .examGrade(mockRequestDto.getExamGrade())
+                    .build();
+            user.addMock(updateMock);
+        }
 
         // MockScoreRequestDto 리스트를 MockScore 엔티티 리스트로 변환하여 추가
         if (mockRequestDto.getScoreLists() != null && !mockRequestDto.getScoreLists().isEmpty()) {
@@ -63,13 +81,11 @@ public class MockService {
                         .category(scoreDto.getCategory())
                         .name(scoreDto.getName())
                         .build();
-                newMock.addMockScore(mockScore);
+                updateMock.addMockScore(mockScore);
             }
         }
-        user.addMock(newMock);
-        mockRepository.save(newMock);
-
-        return new MockResponseDto(newMock);
+        Mock updatedMock = mockRepository.save(updateMock);
+        return new MockResponseDto(updatedMock);
     }
 // 사용하지 않는 관계로 주석 처리
 //    @Transactional
@@ -92,8 +108,8 @@ public class MockService {
 //    }
 
     @Transactional(readOnly = true)
-    public MockResponseDto getMockById(Long mockId) {
-        Mock mock = mockRepository.findById(mockId)
+    public MockResponseDto getMockById(Long mockId, String userId) {
+        Mock mock = mockRepository.findByIdAndUser_Uid(mockId, userId)
                 .orElseThrow(() -> new IllegalArgumentException("Mock not found with ID: " + mockId));
         return new MockResponseDto(mock);
     }
@@ -112,9 +128,9 @@ public class MockService {
     }
 
     @Transactional
-    public MockResponseDto.MockScoreResponseDto getMockScoreById(Long mockId, Long scoreId) {
-        Mock mock = mockRepository.findById(mockId)
-                .orElseThrow(() -> new IllegalArgumentException("Mock not found with id: " + mockId));
+    public MockResponseDto.MockScoreResponseDto getMockScoreById(Long mockId, Long scoreId, String userId) {
+        Mock mock = mockRepository.findByIdAndUser_Uid(mockId, userId)
+                .orElseThrow(() -> new IllegalArgumentException("Mock for user not found with id: " + mockId));
 
         MockScore mockScore = mock.getScoreLists().stream()
                 .filter(score -> score.getId().equals(scoreId))
@@ -124,19 +140,19 @@ public class MockService {
         return new MockResponseDto.MockScoreResponseDto(mockScore);
     }
 
-    @Transactional
-    public MockResponseDto.MockScoreResponseDto updateMockScore(Long mockScoreId, MockRequestDto.MockScoreRequestDto scoreRequestDto) {
-        MockScore existingMockScore = mockScoreRepository.findById(mockScoreId)
-                .orElseThrow(() -> new IllegalArgumentException("MockScore not found with id: " + mockScoreId));
-        existingMockScore.setStandardScore(scoreRequestDto.getStandardScore());
-        existingMockScore.setPercentile(scoreRequestDto.getPercentile());
-        existingMockScore.setGrade(scoreRequestDto.getGrade());
-        existingMockScore.setCumulative(scoreRequestDto.getCumulative());
-        existingMockScore.setCategory(scoreRequestDto.getCategory());
-        existingMockScore.setName(scoreRequestDto.getName());
-        MockScore updatedMockScore = mockScoreRepository.save(existingMockScore);
-        return convertToDto(updatedMockScore);
-    }
+//    @Transactional
+//    public MockResponseDto.MockScoreResponseDto updateMockScore(Long mockScoreId, MockRequestDto.MockScoreRequestDto scoreRequestDto) {
+//        MockScore existingMockScore = mockScoreRepository.findById(mockScoreId)
+//                .orElseThrow(() -> new IllegalArgumentException("MockScore not found with id: " + mockScoreId));
+//        existingMockScore.setStandardScore(scoreRequestDto.getStandardScore());
+//        existingMockScore.setPercentile(scoreRequestDto.getPercentile());
+//        existingMockScore.setGrade(scoreRequestDto.getGrade());
+//        existingMockScore.setCumulative(scoreRequestDto.getCumulative());
+//        existingMockScore.setCategory(scoreRequestDto.getCategory());
+//        existingMockScore.setName(scoreRequestDto.getName());
+//        MockScore updatedMockScore = mockScoreRepository.save(existingMockScore);
+//        return convertToDto(updatedMockScore);
+//    }
 
 //    if (mockRequestDto.getScoreLists() != null && !mockRequestDto.getScoreLists().isEmpty()) {
 //        for (MockRequestDto.MockScoreRequestDto scoreDto : mockRequestDto.getScoreLists()) {
@@ -155,8 +171,8 @@ public class MockService {
 //        mockRepository.save(newMock);
 
     @Transactional
-    public void deleteMock(Long mockId) {
-        mockRepository.deleteById(mockId);
+    public void deleteMock(Long mockId, String userId) {
+        mockRepository.deleteByIdAndUser_Uid(mockId, userId);
     }
 
     private MockResponseDto convertToDto(Mock mock) {

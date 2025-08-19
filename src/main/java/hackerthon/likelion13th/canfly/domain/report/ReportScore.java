@@ -49,4 +49,20 @@ public class ReportScore extends BaseEntity {
     @JoinColumn(name = "rId", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Report report;
+
+
+
+    public void update(String subject, Integer grade,
+                       Integer studentNum, BigDecimal standardDeviation,
+                       Integer subjectAverage, String achievement,
+                       Integer score, Integer credit) {
+        this.subject = subject;
+        this.grade = grade;
+        this.studentNum = studentNum;
+        this.standardDeviation = standardDeviation;
+        this.subjectAverage = subjectAverage;
+        this.achievement = achievement;
+        this.score = score;
+        this.credit = credit;
+    }
 }
