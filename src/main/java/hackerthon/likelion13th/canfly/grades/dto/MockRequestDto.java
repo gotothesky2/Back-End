@@ -1,7 +1,5 @@
 package hackerthon.likelion13th.canfly.grades.dto;
 
-import hackerthon.likelion13th.canfly.domain.entity.CategoryName;
-import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -28,7 +26,7 @@ public class MockRequestDto {
         private Integer percentile;
         private Integer grade;
         private BigDecimal cumulative;
-        private CategoryName category;
+        private Integer category;
         private String name;
     }
 }

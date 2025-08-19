@@ -1,6 +1,5 @@
 package hackerthon.likelion13th.canfly.grades.dto;
 
-import hackerthon.likelion13th.canfly.domain.entity.CategoryName;
 import hackerthon.likelion13th.canfly.domain.mock.Mock;
 import hackerthon.likelion13th.canfly.domain.mock.MockScore;
 import lombok.AllArgsConstructor;
@@ -47,7 +46,7 @@ public class MockResponseDto {
         private Integer percentile;
         private Integer grade;
         private BigDecimal cumulative;
-        private CategoryName category;
+        private Integer category;
         private String name;
 
         public MockScoreResponseDto(MockScore mockScore) {

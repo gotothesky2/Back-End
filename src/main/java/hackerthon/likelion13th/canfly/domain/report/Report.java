@@ -2,7 +2,6 @@ package hackerthon.likelion13th.canfly.domain.report;
 
 import hackerthon.likelion13th.canfly.domain.entity.BaseEntity;
 import hackerthon.likelion13th.canfly.domain.user.User;
-import hackerthon.likelion13th.canfly.domain.entity.CategoryName;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
@@ -33,8 +32,7 @@ public class Report extends BaseEntity {
 
     /** 과목 카테고리명 (국어/수학) */
     @Column(name = "category_name", nullable = false)
-    @Enumerated(EnumType.STRING)
-    private CategoryName categoryName;
+    private Integer categoryName;
 
     /** 카테고리 평균 성적(예: 3.75) */
     @Column(name = "category_grade", precision = 5, scale = 2)

@@ -127,3 +127,8 @@ spring:
         registration:
           kakao:
             redirect-uri: http://canfly.ap-northeast-2.elasticbeanstalk.com/login/oauth2/code/kakao
+
+server:
+  tomcat:
+    threads:
+      max: ${SERVER_TOMCAT_THREADS_MAX:50}

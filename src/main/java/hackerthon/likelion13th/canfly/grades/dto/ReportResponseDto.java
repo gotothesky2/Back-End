@@ -1,6 +1,5 @@
 package hackerthon.likelion13th.canfly.grades.dto;
 
-import hackerthon.likelion13th.canfly.domain.entity.CategoryName;
 import hackerthon.likelion13th.canfly.domain.report.Report;
 import hackerthon.likelion13th.canfly.domain.report.ReportScore;
 import lombok.*;
@@ -19,7 +18,7 @@ public class ReportResponseDto {
     private Long id;
     private Integer userGrade;
     private Integer term;
-    private CategoryName categoryName;
+    private Integer categoryName;
     private BigDecimal categoryGrade;
     private List<ReportScoreResponseDto> scoreList = new ArrayList<>();
 
