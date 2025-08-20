@@ -6,6 +6,7 @@ import hackerthon.likelion13th.canfly.global.api.SuccessCode;
 import hackerthon.likelion13th.canfly.login.auth.mapper.CustomUserDetails;
 import hackerthon.likelion13th.canfly.login.service.UserService;
 import hackerthon.likelion13th.canfly.search.dto.MajorDto;
+import hackerthon.likelion13th.canfly.search.dto.UnivMajorTupleDto;
 import hackerthon.likelion13th.canfly.search.service.MajorService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -53,5 +54,20 @@ public class MajorController {
         List<MajorDto> majors = majorService.getAllMajors();
 
         return ApiResponse.onSuccess(SuccessCode.MAJOR_LIST_VIEW_SUCCESS, majors);
+    }
+
+    @Operation(summary = "전공+대학 북마크 전체",
+            description = "로그인 사용자의 전공+대학 북마크 목록을 반환합니다. (univ_id IS NOT NULL)")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.
+                    ApiResponse(responseCode = "MAJOR_UNIV_BOOKMARK_2008", description = "전공+대학 북마크 목록 조회 완료")
+    })
+    @GetMapping("/univ/list")
+    public ApiResponse<List<UnivMajorTupleDto>> getLikedMajorUnivList(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        User user = userService.findUserByProviderId(customUserDetails.getUsername());
+        List<UnivMajorTupleDto> result = majorService.getAllBookmarkedMajorUnivPairs(user);
+        return ApiResponse.onSuccess(SuccessCode.MAJOR_UNIV_BOOKMARK_LIST_SUCCESS, result);
     }
 }
