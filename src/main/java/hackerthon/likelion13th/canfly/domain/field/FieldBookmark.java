@@ -8,7 +8,7 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
-@Table(name = "fieldBookmark")
+@Table(name = "field_bookmark")
 @Getter
 @Setter
 @NoArgsConstructor
