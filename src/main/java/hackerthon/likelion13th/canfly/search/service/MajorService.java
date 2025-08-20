@@ -6,6 +6,7 @@ import hackerthon.likelion13th.canfly.domain.user.User;
 import hackerthon.likelion13th.canfly.global.api.ErrorCode;
 import hackerthon.likelion13th.canfly.global.exception.GeneralException;
 import hackerthon.likelion13th.canfly.search.dto.MajorDto;
+import hackerthon.likelion13th.canfly.search.dto.UnivDto;
 import hackerthon.likelion13th.canfly.search.repository.MajorBookmarkRepository;
 import hackerthon.likelion13th.canfly.search.repository.MajorRepository;
 import hackerthon.likelion13th.canfly.university.repository.UniversityRepository;
@@ -67,6 +68,16 @@ public class MajorService {
 
         return majors.stream()
                 .map(m -> new MajorDto(m.getId(), m.getName()))
+                .toList();
+    }
+
+    public List<UnivDto> getUniversitiesByMajor(Long majorId) {
+        List<Object[]> rows = universityRepository.findUniversitiesByMajorId(majorId);
+        return rows.stream()
+                .map(r -> new UnivDto(
+                        ((Number) r[0]).longValue(), // univ_id
+                        (String) r[1]                // univ_name
+                ))
                 .toList();
     }
 }
