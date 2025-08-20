@@ -1,7 +1,7 @@
 package hackerthon.likelion13th.canfly.domain.major;
 
 import hackerthon.likelion13th.canfly.domain.entity.BaseEntity;
-import hackerthon.likelion13th.canfly.domain.field.Field;
+import hackerthon.likelion13th.canfly.domain.university.University;
 import hackerthon.likelion13th.canfly.domain.user.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -9,7 +9,7 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
-@Table(name = "majorBookmark")
+@Table(name = "major_bookmark")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -30,4 +30,9 @@ public class MajorBookmark extends BaseEntity {
     @JoinColumn(name = "uid", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private User user;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "univ_id", nullable = true)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private University university;
 }
