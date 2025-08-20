@@ -6,7 +6,6 @@ import hackerthon.likelion13th.canfly.global.api.SuccessCode;
 import hackerthon.likelion13th.canfly.login.auth.mapper.CustomUserDetails;
 import hackerthon.likelion13th.canfly.login.service.UserService;
 import hackerthon.likelion13th.canfly.search.dto.FieldDto;
-import hackerthon.likelion13th.canfly.search.repository.FieldBookmarkRepository;
 import hackerthon.likelion13th.canfly.search.service.FieldService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -19,14 +18,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-@Tag(name = "계열 조회", description = "계열 관련 API")
+@Tag(name = "계열 관련 컨트롤러", description = "계열 관련 API")
 @RestController
 @RequestMapping("/field")
 @RequiredArgsConstructor
 public class FieldController {
     private final UserService userService;
     private final FieldService fieldService;
-    private final FieldBookmarkRepository fieldBookmarkRepository;
 
     @Operation(summary = "내가 좋아요한 계열 전체", description = "로그인 사용자가 북마크한 모든 계열을 반환합니다.")
     @ApiResponses({

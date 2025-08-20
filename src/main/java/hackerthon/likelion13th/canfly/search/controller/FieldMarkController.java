@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "계열 북마크", description = "계열 북마크 컨트롤러입니다")
+@Tag(name = "계열 북마크 관련 컨트롤러", description = "계열 북마크 컨트롤러입니다")
 @RestController
 @RequestMapping("/field/{fieldId}/like")
 @RequiredArgsConstructor

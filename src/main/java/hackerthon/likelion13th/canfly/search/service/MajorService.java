@@ -5,6 +5,8 @@ import hackerthon.likelion13th.canfly.domain.university.University;
 import hackerthon.likelion13th.canfly.domain.user.User;
 import hackerthon.likelion13th.canfly.global.api.ErrorCode;
 import hackerthon.likelion13th.canfly.global.exception.GeneralException;
+import hackerthon.likelion13th.canfly.search.dto.MajorDto;
+import hackerthon.likelion13th.canfly.search.dto.UnivDto;
 import hackerthon.likelion13th.canfly.search.repository.MajorBookmarkRepository;
 import hackerthon.likelion13th.canfly.search.repository.MajorRepository;
 import hackerthon.likelion13th.canfly.university.repository.UniversityRepository;
@@ -12,6 +14,8 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Slf4j
 @Service
@@ -50,5 +54,30 @@ public class MajorService {
         } else {
             majorBookmarkRepository.upsertMajorWithUniv(user.getUid(), major.getId(), univ.getId());
         }
+    }
+
+    public List<MajorDto> getAllLikedMajors(User user) {
+        List<Object[]> rows = majorBookmarkRepository.findAllLikedMajors(user.getUid());
+        return rows.stream()
+                .map(r -> new MajorDto(((Number) r[0]).longValue(), (String) r[1]))
+                .toList();
+    }
+
+    public List<MajorDto> getAllMajors() {
+        List<Major> majors = majorRepository.findAll();
+
+        return majors.stream()
+                .map(m -> new MajorDto(m.getId(), m.getName()))
+                .toList();
+    }
+
+    public List<UnivDto> getUniversitiesByMajor(Long majorId) {
+        List<Object[]> rows = universityRepository.findUniversitiesByMajorId(majorId);
+        return rows.stream()
+                .map(r -> new UnivDto(
+                        ((Number) r[0]).longValue(), // univ_id
+                        (String) r[1]                // univ_name
+                ))
+                .toList();
     }
 }

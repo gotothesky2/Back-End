@@ -42,6 +42,10 @@ public enum SuccessCode implements BaseCode { // 성공
     MAJOR_UNIV_LIKE_SUCCESS(HttpStatus.OK, "MAJOR_UNIV_MARK_2001", "전공+대학 북마크 성공"),
     FIELD_LIKED_LIST_VIEW_SUCCESS(HttpStatus.OK, "FIELD_2006", "로그인 사용자가 북마크한 모든 계열명을 반환합니다."),
     FIELD_LIST_VIEW_SUCCESS(HttpStatus.OK, "FIELD_2007", "계열 전체 조회 완료."),
+    MAJOR_LIKED_LIST_VIEW_SUCCESS(HttpStatus.OK, "MAJOR_2006", "내 북마크 전공 전체 조회 완료"),
+    MAJOR_LIST_VIEW_SUCCESS(HttpStatus.OK, "MAJOR_2007", "전공 전체 조회 완료."),
+    MAJOR_UNIV_LIKED_LIST_VIEW_SUCCESS(HttpStatus.OK, "MAJOR_UNIV_2006", "전공별 대학-전공 북마크 조회 완료"),
+    MAJOR_UNIV_LIST_BY_MAJOR_SUCCESS(HttpStatus.OK, "MAJOR_UNIV_2007", "전공 기준 대학 목록 조회 완료"),
 
     // 내가 추가한 코드
     TOKEN_PROCESS_SUCCESS(HttpStatus.OK, "TOKEN_2001", "코인(토큰) 사용이 완료되었습니다.");
