@@ -237,6 +237,7 @@ public class UserService {
                 .gradeNum(user.getGradeNum())
                 .email(user.getEmail())
                 .sex(user.getSex())
+                .token(user.getToken())
                 .build();
         UserResponseDto mypageDto = new UserResponseDto(mypageInfo);
         return mypageDto;
