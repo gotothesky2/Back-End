@@ -37,6 +37,11 @@ public enum SuccessCode implements BaseCode { // 성공
 
     // 형이 추가한 코드
     MAJORSYNC_BULK_SUCCESS(HttpStatus.OK, "Sync_2012", "DB 동기화가 완료되었습니다."),
+    FIELD_LIKE_SUCCESS(HttpStatus.OK, "FIELD_MARK_2001", "계열 북마크 성공"),
+    MAJOR_LIKE_SUCCESS(HttpStatus.OK, "MAJOR_MARK_2001", "전공 북마크 성공"),
+    MAJOR_UNIV_LIKE_SUCCESS(HttpStatus.OK, "MAJOR_UNIV_MARK_2001", "전공+대학 북마크 성공"),
+    FIELD_LIKED_LIST_VIEW_SUCCESS(HttpStatus.OK, "FIELD_2006", "로그인 사용자가 북마크한 모든 계열명을 반환합니다."),
+    FIELD_LIST_VIEW_SUCCESS(HttpStatus.OK, "FIELD_2007", "계열 전체 조회 완료."),
 
     // 내가 추가한 코드
     TOKEN_PROCESS_SUCCESS(HttpStatus.OK, "TOKEN_2001", "코인(토큰) 사용이 완료되었습니다.");

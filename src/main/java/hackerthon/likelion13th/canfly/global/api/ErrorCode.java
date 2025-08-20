@@ -23,6 +23,15 @@ public enum ErrorCode implements BaseCode { // 실패
     TOKEN_NO_AUTH(HttpStatus.FORBIDDEN, "JWT_4033", "권한 정보가 없는 token입니다."),
     TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "JWT_4011", "token 유효기간이 만료되었습니다."),
 
+    // FIELD
+    FIELD_NOT_FOUND(HttpStatus.NOT_FOUND, "FIELD_4041", "일치하는 FIELD가 없습니다."),
+
+    // Major
+    MAJOR_NOT_FOUND(HttpStatus.NOT_FOUND, "MAJOR_4041", "일치하는 MAJOR가 없습니다."),
+
+    // University
+    UNIVERSITY_NOT_FOUND(HttpStatus.NOT_FOUND, "UNIVERSITY_4041", "일치하는 UNIVERSITY가 없습니다."),
+
     // Mock
     MOCK_NOT_FOUND(HttpStatus.NOT_FOUND, "MOCK_4041", "찾으려는 모의고사가 존재하지 않습니다.");
 
