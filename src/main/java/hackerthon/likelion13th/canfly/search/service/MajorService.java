@@ -7,6 +7,7 @@ import hackerthon.likelion13th.canfly.global.api.ErrorCode;
 import hackerthon.likelion13th.canfly.global.exception.GeneralException;
 import hackerthon.likelion13th.canfly.search.dto.MajorDto;
 import hackerthon.likelion13th.canfly.search.dto.UnivDto;
+import hackerthon.likelion13th.canfly.search.dto.UnivMajorTupleDto;
 import hackerthon.likelion13th.canfly.search.repository.MajorBookmarkRepository;
 import hackerthon.likelion13th.canfly.search.repository.MajorRepository;
 import hackerthon.likelion13th.canfly.university.repository.UniversityRepository;
@@ -78,6 +79,23 @@ public class MajorService {
                         ((Number) r[0]).longValue(), // univ_id
                         (String) r[1]                // univ_name
                 ))
+                .toList();
+    }
+
+    public List<UnivMajorTupleDto> getAllBookmarkedMajorUnivPairs(User user) {
+        List<Object[]> rows = majorBookmarkRepository.findAllBookmarkedMajorUnivPairs(user.getUid());
+        return rows.stream()
+                .map(r -> {
+                    Long mId        = ((Number) r[0]).longValue();
+                    Long univId     = ((Number) r[1]).longValue();
+                    String univName = (String) r[2];
+                    String majorName= (String) r[3];
+                    return UnivMajorTupleDto.builder()
+                            .majorId(mId)
+                            .univId(univId)
+                            .name(List.of(univName, majorName))
+                            .build();
+                })
                 .toList();
     }
 }

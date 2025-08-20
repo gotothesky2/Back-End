@@ -4,7 +4,7 @@ import hackerthon.likelion13th.canfly.domain.major.Major;
 import hackerthon.likelion13th.canfly.domain.major.MajorBookmark;
 import hackerthon.likelion13th.canfly.domain.university.University;
 import hackerthon.likelion13th.canfly.domain.user.User;
-import io.lettuce.core.dynamic.annotation.Param;
+import org.springframework.data.repository.query.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -50,4 +50,22 @@ public interface MajorBookmarkRepository extends JpaRepository<MajorBookmark, Lo
              MAX(mb.mb_id) DESC
     """, nativeQuery = true)
     List<Object[]> findAllLikedMajors(@Param("userId") String userId);
+
+    @Query(value = """
+        SELECT mb.m_id          AS majorId,
+               mb.univ_id       AS univId,
+               u.univ_name      AS universityName,
+               m.m_name         AS majorName,
+               MAX(mb.created_at) AS lastCreatedAt,  -- 정렬용
+               MAX(mb.mb_id)      AS lastMbId        -- 보조 정렬
+        FROM major_bookmark mb
+        JOIN university u ON u.univ_id = mb.univ_id
+        JOIN major      m ON m.m_id    = mb.m_id
+        WHERE mb.uid = :userId
+          AND mb.univ_id IS NOT NULL
+        GROUP BY mb.m_id, mb.univ_id, u.univ_name, m.m_name
+        ORDER BY COALESCE(MAX(mb.created_at), '1000-01-01 00:00:00') DESC,
+                 MAX(mb.mb_id) DESC
+        """, nativeQuery = true)
+    List<Object[]> findAllBookmarkedMajorUnivPairs(@Param("userId") String userId);
 }
