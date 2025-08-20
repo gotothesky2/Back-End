@@ -15,4 +15,8 @@ public interface MockRepository extends JpaRepository<Mock, Long> {
     Optional<Mock> findByUserUidAndExamYearAndExamMonthAndExamGrade(
             String uid, Integer examYear, Integer examMonth, Integer examGrade
     );
+
+    Optional<Mock> findByIdAndUser_Uid(Long mockId, String userId);
+
+    void deleteByIdAndUser_Uid(Long id, String userUid);
 }

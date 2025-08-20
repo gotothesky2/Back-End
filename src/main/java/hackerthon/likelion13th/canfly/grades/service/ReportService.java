@@ -18,6 +18,7 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -30,17 +31,34 @@ public class ReportService {
     private final UserRepository userRepository;
 
     @Transactional
-    public ReportResponseDto createReport(String userId, ReportRequestDto reportRequestDto) {
-        User user = userRepository.findByUid(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found with name: " + userId));
+    public ReportResponseDto createReport(String uid, ReportRequestDto reportRequestDto) {
+        User user = userRepository.findByUid(uid)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + uid));
 
-        Report newReport = Report.builder()
-                .categoryName(reportRequestDto.getCategoryName())
-                .categoryGrade(BigDecimal.valueOf(0.0))
-                .term(reportRequestDto.getTerm())
-                .userGrade(reportRequestDto.getUserGrade())
-                .user(user)
-                .build();
+        Optional<Report> existingReportOpt = reportRepository.findByUserAndUserGradeAndTermAndCategoryName(
+                user,
+                reportRequestDto.getUserGrade(),
+                reportRequestDto.getTerm(),
+                reportRequestDto.getCategoryName()
+        );
+
+        Report updateReport = null;
+        if (existingReportOpt.isPresent()) {
+            // Report 존재 시에는 수정
+            updateReport = existingReportOpt.get();
+            updateReport.getScoreLists().clear();
+
+        } else {
+            // Report 없으면 생성
+            updateReport = Report.builder()
+                    .user(user)
+                    .userGrade(reportRequestDto.getUserGrade())
+                    .term(reportRequestDto.getTerm())
+                    .categoryName(reportRequestDto.getCategoryName())
+                    .build();
+            user.addReport(updateReport);
+        }
+
 
         // ReportScoreRequestDto 리스트를 ReportScore 엔티티 리스트로 변환하여 추가
         if (reportRequestDto.getScoreLists() != null && !reportRequestDto.getScoreLists().isEmpty()) {
@@ -55,42 +73,40 @@ public class ReportService {
                         .score(scoreDto.getScore())
                         .credit(scoreDto.getCredit())
                         .build();
-                newReport.addReportScore(reportScore);
+                updateReport.addReportScore(reportScore);
             }
         }
-        newReport.setCategoryGrade(calculateAverageFromList(newReport.getScoreLists()));
-
-        user.addReport(newReport);
-        reportRepository.save(newReport);
-        return new ReportResponseDto(newReport);
+        updateReport.setCategoryGrade(calculateAverageFromList(updateReport.getScoreLists()));
+        Report savedReport = reportRepository.save(updateReport);
+        return new ReportResponseDto(savedReport);
     }
 
-    @Transactional
-    public ReportResponseDto addReportScoreToReport(Long reportId, ReportRequestDto.ReportScoreRequestDto scoreRequestDto) {
-        Report report = reportRepository.findById(reportId)
-                .orElseThrow(() -> new IllegalArgumentException("Report not found with id: " + reportId));
-
-        // DTO 필드에서 ReportScore 엔티티 직접 생성
-        ReportScore newReportScore = ReportScore.builder()
-                .subject(scoreRequestDto.getSubject())
-                .grade(scoreRequestDto.getGrade())
-                .achievement(scoreRequestDto.getAchievement())
-                .studentNum(scoreRequestDto.getStudentNum())
-                .standardDeviation(scoreRequestDto.getStandardDeviation())
-                .subjectAverage(scoreRequestDto.getSubjectAverage())
-                .score(scoreRequestDto.getScore())
-                .credit(scoreRequestDto.getCredit())
-                .build();;
-        report.addReportScore(newReportScore); // Report 엔티티에 ReportScore 추가 (양방향 관계 설정)
-        report.setCategoryGrade(calculateAverageFromList(report.getScoreLists()));
-        reportScoreRepository.save(newReportScore);
-        return new ReportResponseDto(report);
-    }
+//    @Transactional
+//    public ReportResponseDto addReportScoreToReport(Long reportId, ReportRequestDto.ReportScoreRequestDto scoreRequestDto) {
+//        Report report = reportRepository.findById(reportId)
+//                .orElseThrow(() -> new IllegalArgumentException("Report not found with id: " + reportId));
+//
+//        // DTO 필드에서 ReportScore 엔티티 직접 생성
+//        ReportScore newReportScore = ReportScore.builder()
+//                .subject(scoreRequestDto.getSubject())
+//                .grade(scoreRequestDto.getGrade())
+//                .achievement(scoreRequestDto.getAchievement())
+//                .studentNum(scoreRequestDto.getStudentNum())
+//                .standardDeviation(scoreRequestDto.getStandardDeviation())
+//                .subjectAverage(scoreRequestDto.getSubjectAverage())
+//                .score(scoreRequestDto.getScore())
+//                .credit(scoreRequestDto.getCredit())
+//                .build();;
+//        report.addReportScore(newReportScore); // Report 엔티티에 ReportScore 추가 (양방향 관계 설정)
+//        report.setCategoryGrade(calculateAverageFromList(report.getScoreLists()));
+//        reportScoreRepository.save(newReportScore);
+//        return new ReportResponseDto(report);
+//    }
 
     @Transactional(readOnly = true)
-    public ReportResponseDto getReportById(Long reportId) {
-        Report report = reportRepository.findById(reportId)
-                .orElseThrow(() -> new IllegalArgumentException("Report not found with ID: " + reportId));
+    public ReportResponseDto getReportById(Long reportId, String userId) {
+        Report report = reportRepository.findByIdAndUser_Uid(reportId, userId)
+                .orElseThrow(() -> new IllegalArgumentException("Report for user not found with ID: " + reportId));
         return new ReportResponseDto(report);
     }
 
@@ -108,9 +124,9 @@ public class ReportService {
     }
 
     @Transactional
-    public ReportResponseDto.ReportScoreResponseDto getReportScoreById(Long reportId, Long scoreId) {
-        Report report = reportRepository.findById(reportId)
-                .orElseThrow(() -> new IllegalArgumentException("Report not found with id: " + reportId));
+    public ReportResponseDto.ReportScoreResponseDto getReportScoreById(Long reportId, Long scoreId, String userId) {
+        Report report = reportRepository.findByIdAndUser_Uid(reportId, userId)
+                .orElseThrow(() -> new IllegalArgumentException("Report for user not found with id: " + reportId));
 
         ReportScore reportScore = report.getScoreLists().stream()
                 .filter(score -> score.getId().equals(scoreId))
@@ -124,56 +140,61 @@ public class ReportService {
         if (scores == null || scores.isEmpty()) {
             return BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
         }
-
-        BigDecimal sum = scores.stream()
-                .map(ReportScore::getGrade)
-                .map(BigDecimal::valueOf)
+        // 학점에 따른 등급 가중치 조정
+        BigDecimal weightedSum = scores.stream()
+                .map(score -> {
+                    BigDecimal grade = BigDecimal.valueOf(score.getGrade());
+                    BigDecimal credit = BigDecimal.valueOf(score.getCredit());
+                    return grade.multiply(credit);
+                })
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        BigDecimal count = BigDecimal.valueOf(scores.size());
+        BigDecimal totalCredits = scores.stream()
+                .map(score -> BigDecimal.valueOf(score.getCredit()))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        // 0으로 나누는 경우 방지
-        if (count.compareTo(BigDecimal.ZERO) == 0) {
+        // 0으로 나누는 경우 방지 (총 학점이 0일 경우)
+        if (totalCredits.compareTo(BigDecimal.ZERO) == 0) {
             return BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
         }
 
-        BigDecimal average = sum.divide(count, MathContext.DECIMAL64);
+        BigDecimal average = weightedSum.divide(totalCredits, MathContext.DECIMAL64);
         return average.setScale(2, RoundingMode.HALF_UP);
     }
 
 
-    @Transactional
-    public ReportResponseDto updateReport(Long reportId, ReportRequestDto reportRequestDto) {
-        Report existingReport = reportRepository.findById(reportId)
-                .orElseThrow(() -> new IllegalArgumentException("Report not found with id: " + reportId));
-        existingReport.setCategoryName(reportRequestDto.getCategoryName());
-        Report updatedReport = reportRepository.save(existingReport);
-        return convertToDto(updatedReport);
-    }
+//    @Transactional
+//    public ReportResponseDto updateReport(Long reportId, ReportRequestDto reportRequestDto) {
+//        Report existingReport = reportRepository.findById(reportId)
+//                .orElseThrow(() -> new IllegalArgumentException("Report not found with id: " + reportId));
+//        existingReport.setCategoryName(reportRequestDto.getCategoryName());
+//        Report updatedReport = reportRepository.save(existingReport);
+//        return convertToDto(updatedReport);
+//    }
+//
+//    @Transactional
+//    public ReportResponseDto.ReportScoreResponseDto updateReportScore(Long reportScoreId, ReportRequestDto.ReportScoreRequestDto scoreRequestDto) {
+//        ReportScore existingReportScore = reportScoreRepository.findById(reportScoreId)
+//                .orElseThrow(() -> new IllegalArgumentException("ReportScore not found with id: " + reportScoreId));
+//        existingReportScore.setSubject(scoreRequestDto.getSubject());
+//        existingReportScore.setGrade(scoreRequestDto.getGrade());
+//        existingReportScore.setAchievement(scoreRequestDto.getAchievement());
+//        existingReportScore.setStudentNum(scoreRequestDto.getStudentNum());
+//        existingReportScore.setStandardDeviation(scoreRequestDto.getStandardDeviation());
+//        existingReportScore.setSubjectAverage(scoreRequestDto.getSubjectAverage());
+//        existingReportScore.setScore(scoreRequestDto.getScore());
+//        existingReportScore.setCredit(scoreRequestDto.getCredit());
+//        Report parentReport = existingReportScore.getReport(); // ReportScore가 Report 참조를 가지고 있어야 함
+//        if (parentReport != null) {
+//            parentReport.setCategoryGrade(calculateAverageFromList(parentReport.getScoreLists()));
+//        }
+//        ReportScore updatedReportScore = reportScoreRepository.save(existingReportScore);
+//        return convertToDto(updatedReportScore);
+//    }
 
     @Transactional
-    public ReportResponseDto.ReportScoreResponseDto updateReportScore(Long reportScoreId, ReportRequestDto.ReportScoreRequestDto scoreRequestDto) {
-        ReportScore existingReportScore = reportScoreRepository.findById(reportScoreId)
-                .orElseThrow(() -> new IllegalArgumentException("ReportScore not found with id: " + reportScoreId));
-        existingReportScore.setSubject(scoreRequestDto.getSubject());
-        existingReportScore.setGrade(scoreRequestDto.getGrade());
-        existingReportScore.setAchievement(scoreRequestDto.getAchievement());
-        existingReportScore.setStudentNum(scoreRequestDto.getStudentNum());
-        existingReportScore.setStandardDeviation(scoreRequestDto.getStandardDeviation());
-        existingReportScore.setSubjectAverage(scoreRequestDto.getSubjectAverage());
-        existingReportScore.setScore(scoreRequestDto.getScore());
-        existingReportScore.setCredit(scoreRequestDto.getCredit());
-        Report parentReport = existingReportScore.getReport(); // ReportScore가 Report 참조를 가지고 있어야 함
-        if (parentReport != null) {
-            parentReport.setCategoryGrade(calculateAverageFromList(parentReport.getScoreLists()));
-        }
-        ReportScore updatedReportScore = reportScoreRepository.save(existingReportScore);
-        return convertToDto(updatedReportScore);
-    }
-
-    @Transactional
-    public void deleteReport(Long reportId) {
-        reportRepository.deleteById(reportId);
+    public void deleteReport(Long reportId, String userId) {
+        reportRepository.deleteByIdAndUser_Uid(reportId, userId);
     }
 
     private ReportResponseDto convertToDto(Report report) {

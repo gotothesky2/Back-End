@@ -147,23 +147,27 @@ public class UserService {
     @Transactional
     public boolean completeProfile(String providerId, ProfileRequestDto req) {
         User user = findUserByProviderId(providerId);
+        if (req.getSex() == null || req.getGradeNum() == null || req.getHighschool() == null || req.getAddress() == null) {
+            throw GeneralException.of(ErrorCode.INPUT_NOT_COMPLETED);
+        }
+        else {
+            user.setSex(req.getSex());
+            user.setHighschool(req.getHighschool());
+            user.setGradeNum(req.getGradeNum());
 
-        user.setSex(req.getSex());
-        user.setHighschool(req.getHighschool());
-        user.setGradeNum(req.getGradeNum());
+            String zipcode = req.getZipcode();
+            String address = req.getAddress();
+            String detail = req.getAddressDetail();
 
-        String zipcode = req.getZipcode();
-        String address = req.getAddress();
-        String detail = req.getAddressDetail();
+            // 새로운 주소 설정
+            Address newAddress = new Address(zipcode, address, detail);
+            user.updateAddress(newAddress); // User 엔티티에 주소 업데이트
+            userRepository.save(user);
 
-        // 새로운 주소 설정
-        Address newAddress = new Address(zipcode, address, detail);
-        user.updateAddress(newAddress); // User 엔티티에 주소 업데이트
-        userRepository.save(user);
+            boolean stillNeeds = this.needsProfile(providerId);
 
-        boolean stillNeeds = this.needsProfile(providerId);
-
-        return !stillNeeds;
+            return !stillNeeds;
+        }
     }
 
     public String checkMemberByName(String username) {

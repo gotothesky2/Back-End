@@ -14,7 +14,6 @@ public class ReportRequestDto {
     private Integer userGrade;
     private Integer term;
     private Integer categoryName;
-    private BigDecimal categoryGrade;
     private List<ReportScoreRequestDto> scoreLists;
 
     @Getter
