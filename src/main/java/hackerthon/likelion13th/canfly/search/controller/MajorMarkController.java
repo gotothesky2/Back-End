@@ -5,16 +5,16 @@ import hackerthon.likelion13th.canfly.global.api.ApiResponse;
 import hackerthon.likelion13th.canfly.global.api.SuccessCode;
 import hackerthon.likelion13th.canfly.login.auth.mapper.CustomUserDetails;
 import hackerthon.likelion13th.canfly.login.service.UserService;
+import hackerthon.likelion13th.canfly.search.dto.UnivDto;
 import hackerthon.likelion13th.canfly.search.service.MajorService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Tag(name = "전공 및 전공-대학 북마크", description = "전공 북마크 컨트롤러입니다")
 @RestController
@@ -49,5 +49,18 @@ public class MajorMarkController {
         User user = userService.findUserByProviderId(customUserDetails.getUsername());
         majorService.toggleMajorUnivLike(majorId, univId, user);
         return ApiResponse.onSuccess(SuccessCode.MAJOR_UNIV_LIKE_SUCCESS, true);
+    }
+
+    @Operation(summary = "전공을 개설한 대학 목록", description = "전공(majorId)을 개설한 대학 목록을 반환합니다.")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.
+                    ApiResponse(responseCode = "MAJOR_UNIV_2007", description = "전공 기준 대학 목록 조회 완료")
+    })
+    @GetMapping("/universities")
+    public ApiResponse<List<UnivDto>> getUniversitiesByMajor(
+            @PathVariable Long majorId
+    ) {
+        List<UnivDto> result = majorService.getUniversitiesByMajor(majorId);
+        return ApiResponse.onSuccess(SuccessCode.MAJOR_UNIV_LIST_BY_MAJOR_SUCCESS, result);
     }
 }
