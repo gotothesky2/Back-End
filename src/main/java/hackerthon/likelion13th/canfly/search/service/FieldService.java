@@ -5,8 +5,10 @@ import hackerthon.likelion13th.canfly.domain.user.User;
 import hackerthon.likelion13th.canfly.global.api.ErrorCode;
 import hackerthon.likelion13th.canfly.global.exception.GeneralException;
 import hackerthon.likelion13th.canfly.search.dto.FieldDto;
+import hackerthon.likelion13th.canfly.search.dto.MajorDto;
 import hackerthon.likelion13th.canfly.search.repository.FieldBookmarkRepository;
 import hackerthon.likelion13th.canfly.search.repository.FieldRepository;
+import hackerthon.likelion13th.canfly.search.repository.MajorRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +22,7 @@ import java.util.List;
 public class FieldService {
     private final FieldBookmarkRepository fieldBookmarkRepository;
     private final FieldRepository fieldRepository;
+    private final MajorRepository majorRepository;
 
     @Transactional
     public Field toggleFieldLike(Long fieldId, User user) {
@@ -53,6 +56,16 @@ public class FieldService {
 
         return fields.stream()
                 .map(f -> new FieldDto(f.getId(), f.getName()))
+                .toList();
+    }
+
+    public List<MajorDto> getMajorsByField(Long fieldId) {
+        List<Object[]> rows = majorRepository.findMajorsByFieldId(fieldId);
+        return rows.stream()
+                .map(r -> new MajorDto(
+                        ((Number) r[0]).longValue(), // m_id
+                        (String) r[1]                // m_name
+                ))
                 .toList();
     }
 }
