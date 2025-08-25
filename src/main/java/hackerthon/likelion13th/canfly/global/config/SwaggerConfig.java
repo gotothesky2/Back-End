@@ -39,11 +39,15 @@ public class SwaggerConfig {
                 .url("http://canfly.ap-northeast-2.elasticbeanstalk.com/")
                 .description("Canfly HTTP Server");
 
+        Server httpsServer = new Server()
+                .url("https://can-fly.shop")
+                .description("canfly HTTPS Server");
+
         return new OpenAPI()
                 .info(apiInfo)
                 .addSecurityItem(securityRequirement)
                 .components(components)
-                .servers(List.of(localServer, httpServer));
+                .servers(List.of(localServer, httpServer, httpsServer));
     }
 
     @Bean

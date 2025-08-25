@@ -126,7 +126,7 @@ spring:
       client:
         registration:
           kakao:
-            redirect-uri: http://canfly.ap-northeast-2.elasticbeanstalk.com/login/oauth2/code/kakao
+            redirect-uri: https://www.can-fly.shop/login/oauth2/code/kakao
 
 server:
   tomcat:
